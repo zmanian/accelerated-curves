@@ -1,0 +1,30 @@
+[package]
+name = "zcash-pasta-accel"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Optional acceleration facade for Pasta-curve MSM and FFT workloads"
+
+[features]
+default = ["std"]
+std = []
+cuda = ["std", "dep:pasta-msm"]
+avx512 = ["std"]
+ragu = []
+halo2 = []
+experimental-verifier-accept = []
+
+[dependencies]
+pasta-msm = { path = "../../repos/pasta-msm", optional = true }
+pasta_curves = "0.5.1"
+thiserror = "1"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1"
+rand = "0.8"
+rand_chacha = "0.3"
+
+[[bench]]
+name = "msm"
+harness = false
