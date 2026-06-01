@@ -109,11 +109,11 @@ authorization signature. The current coverage proves that these local
 mempool-cache bypass shapes keep rejecting.
 
 The `halo2_invalid_proofs` fuzz target now extracts valid Orchard/Halo2 items
-from Zebra's local block test vectors, verifies the source item once, mutates
-one proof byte, and checks that the mutated proof is rejected by the same
-Orchard verifying key. This adds valid-bundle-derived proof-byte invalid-proof
-coverage, but it is still not a signature/auth-mutation corpus or hardware
-burn-in substitute.
+from Zebra's local block test vectors, verifies the source item once, mutates a
+proof byte, binding-signature byte, or spend-authorization-signature byte, and
+checks that the mutated auth data is rejected by the same Orchard verifying key.
+This adds valid-bundle-derived proof, binding-signature, and spend-authorization
+invalid-auth coverage. It is still not a hardware burn-in substitute.
 
 ## Metrics
 
@@ -208,8 +208,6 @@ cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid
 
 ## Remaining Work
 
-- expand the valid-bundle-derived invalid-proof corpus beyond proof-byte
-  mutations into binding-signature and spend-authorization cases
 - add an experimental-accept replay series once hardware burn-in evidence is
   available
 - replace repeated local bundles with historical or synthetic valid offline

@@ -190,8 +190,8 @@ fields or invalid curve coordinates before any future foreign call.
   covered in CPU mode, and startup logging reports backend availability and
   self-test readiness. The `halo2_batch_items` fuzz target covers batch-item
   selection and acceleration gating invariants over real local test-vector
-  items. The `halo2_invalid_proofs` fuzz target covers proof-byte mutations
-  derived from valid local Orchard/Halo2 items; signature/auth-derived invalid
-  proof corpora remain open.
+  items. The `halo2_invalid_proofs` fuzz target covers proof, binding-signature,
+  and spend-authorization mutations derived from valid local Orchard/Halo2
+  items.
 - The offline replay benchmark uses repeated local test-vector bundles, not a
   historical Sandblasting block corpus.

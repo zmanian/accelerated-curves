@@ -65,8 +65,8 @@ consensus behavior:
 - crosscheck burn-in with zero mismatches
 - continued `halo2_batch_items` and `halo2_invalid_proofs` fuzzing over real
   local Orchard/Halo2 test-vector items
-- valid-bundle-derived invalid-proof rejection tests beyond proof-byte
-  mutations, covering binding signatures and spend authorization
+- valid-bundle-derived invalid-auth rejection tests covering proof,
+  binding-signature, and spend-authorization mutations
 - offline replay evidence with mismatch and fallback counters
 
 Until then, Zebra acceleration work should stay in CPU or crosscheck mode.

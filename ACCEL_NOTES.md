@@ -556,8 +556,9 @@ branch `codex/halo2-accel-verify`:
     candidate counts, CPU-mode suppression, crosscheck gating, and
     experimental-accept gating invariants
   - `halo2_invalid_proofs` extracts valid Orchard/Halo2 items from local Zebra
-    block test vectors, verifies source items once, mutates proof bytes, and
-    checks that the mutated proofs reject
+    block test vectors, verifies source items once, mutates proof bytes,
+    binding-signature bytes, or spend-authorization-signature bytes, and checks
+    that the mutated auth data rejects
 - `repos/zebra/zebra-consensus/src/transaction/tests.rs`
   - broadens the CVE-2026-34377 mempool-cache regression coverage with
     txid-preserving Orchard auth-data mutations for proof bytes, binding
@@ -633,8 +634,8 @@ Known caveat:
   auth-data rejection path still rejects in CPU, crosscheck, experimental
   fallback, and experimental-accept builds, plus startup backend self-test
   reporting. It also covers individual txid-preserving Orchard auth-data
-  mutations in CPU mode, and a valid-bundle-derived proof-byte invalid-proof
-  fuzz target. It still needs signature/auth invalid-proof corpus expansion and
-  hardware burn-in evidence.
+  mutations in CPU mode, and a valid-bundle-derived proof, binding-signature,
+  and spend-authorization invalid-auth fuzz target. It still needs hardware
+  burn-in evidence.
 - the replay benchmark currently uses repeated local test-vector bundles, not
   historical Sandblasting-era block data or synthetic valid Orchard bundles.
