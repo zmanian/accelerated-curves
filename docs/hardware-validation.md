@@ -4,6 +4,20 @@ Use this runbook for cloud hosts that have CUDA or AVX-512 IFMA hardware. The
 default CI remains CPU-only; these checks are burn-in evidence, not a default
 consensus accept path.
 
+The same checks are available as a manual GitHub Actions workflow:
+
+```sh
+gh workflow run hardware-validation.yml \
+  --repo zmanian/accelerated-curves \
+  --ref codex/accelerated-curves \
+  -f runner_labels_json='["self-hosted","linux","x64","cuda"]' \
+  -f run_cuda=true \
+  -f run_avx512=false
+```
+
+Use a runner label set that matches the cloud runner you registered. For a
+single AVX-512 runner, set `run_cuda=false` and `run_avx512=true`.
+
 ## Common Setup
 
 ```sh

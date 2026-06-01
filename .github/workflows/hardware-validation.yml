@@ -1,0 +1,122 @@
+name: Hardware Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner_labels_json:
+        description: JSON array for runs-on, for example ["self-hosted","linux","x64","cuda"]
+        required: true
+        type: string
+        default: '["ubuntu-latest"]'
+      run_cuda:
+        description: Run CUDA validation checks
+        required: false
+        type: boolean
+        default: false
+      run_avx512:
+        description: Run AVX-512 IFMA validation checks
+        required: false
+        type: boolean
+        default: false
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  hardware-validation:
+    name: Hardware validation
+    if: ${{ inputs.run_cuda || inputs.run_avx512 }}
+    runs-on: ${{ fromJSON(inputs.runner_labels_json) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust components
+        run: |
+          rustup component add rustfmt clippy
+
+      - name: Clone integration branches
+        run: |
+          mkdir -p repos
+          git clone --depth 1 --branch codex/pasta-msm-fallible https://github.com/zmanian/pasta-msm.git repos/pasta-msm
+          git clone --depth 1 --branch codex/accel-msm https://github.com/zmanian/ragu.git repos/ragu
+          git clone --depth 1 --branch codex/pasta-accel-dispatch https://github.com/zmanian/halo2.git repos/halo2
+          git clone --depth 1 --branch codex/halo2-accel-verify https://github.com/zmanian/zebra.git repos/zebra
+
+      - name: Capture common host evidence
+        run: |
+          rustc --version
+          cargo --version
+          uname -a
+          git rev-parse HEAD
+          git -C repos/pasta-msm rev-parse HEAD
+          git -C repos/ragu rev-parse HEAD
+          git -C repos/halo2 rev-parse HEAD
+          git -C repos/zebra rev-parse HEAD
+
+      - name: Capture CUDA host evidence
+        if: ${{ inputs.run_cuda }}
+        run: |
+          nvidia-smi
+          nvcc --version || true
+
+      - name: Test CUDA facade
+        if: ${{ inputs.run_cuda }}
+        run: cargo test -p zcash-pasta-accel --features cuda -- --test-threads=1
+
+      - name: Build CUDA MSM benchmark
+        if: ${{ inputs.run_cuda }}
+        run: cargo bench -p zcash-pasta-accel --features cuda --bench msm --no-run
+
+      - name: Test Ragu CUDA dispatch-or-fallback seed path
+        if: ${{ inputs.run_cuda }}
+        working-directory: repos/ragu
+        env:
+          ZCASH_ACCEL: cuda
+          ZCASH_ACCEL_MIN_MSM: 1
+        run: cargo test -p ragu_pcd --features accel-msm seed_with_cuda_accel_config_dispatches_or_falls_back_and_verifies -- --test-threads=1
+
+      - name: Test Halo2 CUDA dispatch path
+        if: ${{ inputs.run_cuda }}
+        working-directory: repos/halo2
+        env:
+          ZCASH_ACCEL: cuda
+          ZCASH_ACCEL_MIN_MSM: 1
+        run: cargo test -p halo2_proofs --features pasta-accel test_pasta_accel_multiexp_matches_cpu -- --test-threads=1
+
+      - name: Test Zebra CUDA crosscheck rejection path
+        if: ${{ inputs.run_cuda }}
+        working-directory: repos/zebra
+        env:
+          ZCASH_ACCEL: cuda
+          ZCASH_ACCEL_MIN_MSM: 1
+        run: cargo test -p zebra-consensus --features halo2-accel-verify block_with_garbage_orchard_proofs_is_rejected -- --test-threads=1
+
+      - name: Capture AVX-512 host evidence
+        if: ${{ inputs.run_avx512 }}
+        run: |
+          lscpu | grep -i avx512
+
+      - name: Test AVX-512 facade stub gating
+        if: ${{ inputs.run_avx512 }}
+        run: |
+          cargo test -p zcash-pasta-accel --features avx512 -- --test-threads=1
+          cargo test -p zcash-pasta-accel --features avx512 avx512_runtime_detection_does_not_claim_stub_backend_availability -- --test-threads=1
+
+      - name: Test Ragu AVX-512 fallback seed path
+        if: ${{ inputs.run_avx512 }}
+        working-directory: repos/ragu
+        run: cargo test -p ragu_pcd --features accel-msm seed_with_accel_config_falls_back_and_verifies -- --test-threads=1
+
+      - name: Test Halo2 AVX-512 fallback path
+        if: ${{ inputs.run_avx512 }}
+        working-directory: repos/halo2
+        env:
+          ZCASH_ACCEL: avx512
+          ZCASH_ACCEL_MIN_MSM: 1
+        run: cargo test -p halo2_proofs --features pasta-accel test_pasta_accel_multiexp_matches_cpu -- --test-threads=1
+
+      - name: Test Zebra AVX-512 startup self-test gating
+        if: ${{ inputs.run_avx512 }}
+        working-directory: repos/zebra
+        run: cargo test -p zebra-consensus --features halo2-accel-verify halo2_accel_startup_status_reports_failed_avx512_stub_self_test -- --test-threads=1

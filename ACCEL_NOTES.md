@@ -350,6 +350,11 @@ The root repository now has a CPU-only default workflow:
   - keeps CUDA checks behind a manual `workflow_dispatch` `run_gpu` input:
     `cargo test -p zcash-pasta-accel --features cuda` and
     `cargo bench -p zcash-pasta-accel --features cuda --bench msm --no-run`
+- `.github/workflows/hardware-validation.yml`
+  - manual-only cloud-runner workflow with configurable `runs-on` labels
+  - captures host, compiler, GPU/CPU feature, and branch SHA evidence
+  - can run CUDA facade, Ragu, Halo2, and Zebra validation checks
+  - can run AVX-512 runtime-detection and fallback-gating checks
 
 ## Ragu MSM Integration Status
 
