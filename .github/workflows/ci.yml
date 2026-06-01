@@ -29,6 +29,11 @@ jobs:
         run: |
           rustup component add rustfmt clippy
 
+      - name: Clone pasta-msm adapter branch
+        run: |
+          mkdir -p repos
+          git clone --depth 1 --branch codex/pasta-msm-fallible https://github.com/zmanian/pasta-msm.git repos/pasta-msm
+
       - name: Check formatting
         run: cargo fmt --all --check
 
@@ -57,6 +62,7 @@ jobs:
       - name: Clone Ragu integration branch
         run: |
           mkdir -p repos
+          git clone --depth 1 --branch codex/pasta-msm-fallible https://github.com/zmanian/pasta-msm.git repos/pasta-msm
           git clone --depth 1 --branch codex/accel-msm https://github.com/zmanian/ragu.git repos/ragu
 
       - name: Test Ragu arithmetic acceleration
@@ -76,6 +82,7 @@ jobs:
       - name: Clone Halo2 integration branch
         run: |
           mkdir -p repos
+          git clone --depth 1 --branch codex/pasta-msm-fallible https://github.com/zmanian/pasta-msm.git repos/pasta-msm
           git clone --depth 1 --branch codex/pasta-accel-dispatch https://github.com/zmanian/halo2.git repos/halo2
 
       - name: Test Halo2 accelerated MSM dispatch
@@ -95,6 +102,7 @@ jobs:
       - name: Clone Halo2 and Zebra integration branches
         run: |
           mkdir -p repos
+          git clone --depth 1 --branch codex/pasta-msm-fallible https://github.com/zmanian/pasta-msm.git repos/pasta-msm
           git clone --depth 1 --branch codex/pasta-accel-dispatch https://github.com/zmanian/halo2.git repos/halo2
           git clone --depth 1 --branch codex/halo2-accel-verify https://github.com/zmanian/zebra.git repos/zebra
 
@@ -112,6 +120,11 @@ jobs:
       - name: Install Rust components
         run: |
           rustup component add clippy
+
+      - name: Clone pasta-msm adapter branch
+        run: |
+          mkdir -p repos
+          git clone --depth 1 --branch codex/pasta-msm-fallible https://github.com/zmanian/pasta-msm.git repos/pasta-msm
 
       - name: Test CUDA feature
         run: cargo test -p zcash-pasta-accel --features cuda

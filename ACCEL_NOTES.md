@@ -327,6 +327,9 @@ Initial documentation now lives under `docs/`:
 The root repository now has a CPU-only default workflow:
 
 - `.github/workflows/ci.yml`
+  - clones `zmanian/pasta-msm` branch `codex/pasta-msm-fallible` before
+    facade-dependent jobs so Cargo can resolve the optional local
+    `pasta-msm` path dependency
   - runs `cargo fmt --all --check`
   - runs `cargo test --workspace`
   - runs `cargo test --workspace --no-default-features`
