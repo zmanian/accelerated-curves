@@ -392,6 +392,8 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
   - includes a forced CUDA fallback path to measure fallback overhead in
     CPU-only builds
   - prints `AccelMsmStats` after the group
+  - when built with both `accel-msm` and `accel-fft`, also prints
+    `AccelFftStats` for end-to-end PCD workload census runs
 - `repos/ragu/crates/ragu_arithmetic/src/util.rs`
   - keeps the existing windowed bucket implementation as `cpu_mul`
   - routes `mul` through `mul_with_accel_config` only under `accel-msm`
@@ -431,6 +433,8 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
     polynomial commitment falls back to CPU and records one MSM candidate
 - `repos/ragu/crates/ragu_pcd/Cargo.toml`
   - adds `accel-msm = ["std", "ragu_arithmetic/accel-msm", "ragu_circuits/accel-msm"]`
+  - adds `accel-fft = ["std", "ragu_arithmetic/accel-fft"]` so PCD benchmark
+    builds can report end-to-end FFT workload stats
 - `repos/ragu/crates/ragu_pcd/src/lib.rs`
   - adds feature-gated `ProverAccelConfig`
   - adds explicit `seed_with_accel_config` and
@@ -475,6 +479,7 @@ Ragu verification run so far:
 - `cargo bench -p ragu_arithmetic --features accel-fft --bench fft_criterion --no-run`
 - `cargo bench -p ragu_pcd --bench pcd_accel_criterion --no-run`
 - `cargo bench -p ragu_pcd --features accel-msm --bench pcd_accel_criterion --no-run`
+- `cargo bench -p ragu_pcd --features accel-msm,accel-fft --bench pcd_accel_criterion --no-run`
 - `cargo clippy -p ragu_pcd --features accel-msm --all-targets -- -D warnings`
 
 ## Halo2 MSM Integration Status

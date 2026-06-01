@@ -93,7 +93,7 @@ cargo test -p ragu_arithmetic --features accel-msm -- --test-threads=1
 cargo test -p ragu_pcd --features accel-msm seed_with_ -- --test-threads=1
 cargo test -p ragu_arithmetic --features accel-fft accel_fft_stats -- --test-threads=1
 cargo bench -p ragu_arithmetic --features accel-fft --bench fft_criterion --no-run
-cargo bench -p ragu_pcd --features accel-msm --bench pcd_accel_criterion --no-run
+cargo bench -p ragu_pcd --features accel-msm,accel-fft --bench pcd_accel_criterion --no-run
 ```
 
 Halo2:

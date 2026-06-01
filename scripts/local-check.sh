@@ -66,6 +66,7 @@ ragu_fft_checks() {
   need_dir "$dir"
   run "$dir" cargo test -p ragu_arithmetic --features accel-fft accel_fft_stats -- --test-threads=1
   run "$dir" cargo bench -p ragu_arithmetic --features accel-fft --bench fft_criterion --no-run
+  run "$dir" cargo bench -p ragu_pcd --features accel-msm,accel-fft --bench pcd_accel_criterion --no-run
 }
 
 ragu_fuzz_checks() {

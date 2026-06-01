@@ -95,6 +95,9 @@ In `ragu_pcd`, enabling `accel-msm` exposes:
 - `Application::fuse_with_accel_config`
 - `Application::rerandomize_with_accel_config`
 
+`ragu_pcd` also exposes an `accel-fft` feature that enables the
+`ragu_arithmetic` FFT workload census for end-to-end PCD benchmark builds.
+
 `ProverAccelConfig` carries the requested backend, MSM threshold, future FFT
 threshold, and a witness-buffer policy flag. The explicit APIs keep the default
 PCD surface unchanged while allowing benchmark and burn-in callers to route real
@@ -136,6 +139,7 @@ cargo clippy -p ragu_arithmetic --features accel-fft --all-targets -- -D warning
 cargo clippy -p ragu_pcd --features accel-msm --all-targets -- -D warnings
 cargo bench -p ragu_arithmetic --features accel-msm --bench msm_criterion --no-run
 cargo bench -p ragu_arithmetic --features accel-fft --bench fft_criterion --no-run
+cargo bench -p ragu_pcd --features accel-msm,accel-fft --bench pcd_accel_criterion --no-run
 ```
 
 ## Benchmark Hooks
@@ -165,7 +169,9 @@ The PCD Criterion benchmark covers:
 
 It compares default CPU APIs with explicit `ProverAccelConfig` APIs under
 `accel-msm`, including a forced CUDA fallback path for CPU-only machines. It
-also prints `AccelMsmStats` after the benchmark group.
+also prints `AccelMsmStats` after the benchmark group. When built with both
+`accel-msm` and `accel-fft`, it also prints `AccelFftStats`, giving the same
+FFT workload census inside end-to-end PCD runs.
 
 Target measurements still needed for production benchmark reports:
 
