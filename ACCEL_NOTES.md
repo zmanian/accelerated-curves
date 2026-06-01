@@ -505,6 +505,9 @@ Zebra verification run so far:
 - `cargo test -p zebra-consensus --features halo2-accel-verify halo2_batch_accel_takes_facade_dispatch_stats -- --test-threads=1`
 - `cargo test -p zebra-consensus --features halo2-accel-verify halo2_batch_accel -- --test-threads=1`
 - `cargo test -p zebra-consensus --features experimental-verifier-accept halo2_batch_accel_experimental_accept -- --test-threads=1`
+- `cargo test -p zebra-consensus block_with_garbage_orchard_proofs_is_rejected -- --test-threads=1`
+- `cargo test -p zebra-consensus --features halo2-accel-verify block_with_garbage_orchard_proofs_is_rejected -- --test-threads=1`
+- `cargo test -p zebra-consensus --features experimental-verifier-accept block_with_garbage_orchard_proofs_is_rejected -- --test-threads=1`
 - `cargo check -p zebra-consensus --features halo2-accel-verify`
 - `cargo check -p zebrad --no-default-features --features halo2-accel-verify`
 - `cargo check -p zebrad --no-default-features --features experimental-verifier-accept`
@@ -540,7 +543,10 @@ Known caveat:
 
 - feature-enabled Zebra checks compile through the cloned Halo2 and root
   `zcash-pasta-accel` crates, and crosscheck mode is CPU-accepting. Production
-  experimental accept still needs startup backend self-tests, invalid-proof
-  rejection coverage in every mode, and hardware burn-in evidence.
+  experimental accept now has regression coverage showing the existing garbage
+  Orchard proof rejection path still rejects in CPU, crosscheck, experimental
+  fallback, and experimental-accept builds. It still needs startup backend
+  self-test operator reporting, a broader invalid-proof corpus, and hardware
+  burn-in evidence.
 - the replay benchmark currently uses repeated local test-vector bundles, not
   historical Sandblasting-era block data or synthetic valid Orchard bundles.

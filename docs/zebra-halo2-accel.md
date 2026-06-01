@@ -84,6 +84,23 @@ The config reaches `transaction::Verifier` from `router::init`, then the
 Orchard queue point in `verify_orchard_bundle`, and finally the
 `primitives::halo2::Item` queued into the batch verifier.
 
+## Invalid Proof Coverage
+
+Zebra's CVE-2026-34377 regression test for a block transaction with garbage
+Orchard proof bytes now runs through the configurable verifier path. The test
+matrix covers:
+
+- default CPU behavior
+- crosscheck mode with `halo2-accel-verify`
+- experimental-accept config without the accept feature, which must fall back
+  to CPU-protected crosscheck behavior
+- experimental-accept config with the `experimental-verifier-accept` build
+  feature
+
+The current coverage proves that this specific invalid Orchard proof path keeps
+rejecting across modes. It is not yet a broader invalid-proof corpus or hardware
+burn-in substitute.
+
 ## Metrics
 
 Current transaction-level metric:
@@ -144,7 +161,8 @@ It does not generate or send network load.
 
 - promote the backend self-test gate into explicit startup telemetry/operator
   reporting
-- add invalid-proof rejection coverage for every mode
+- broaden invalid-proof rejection coverage beyond the current garbage Orchard
+  proof regression
 - add an experimental-accept replay series once hardware burn-in evidence is
   available
 - replace repeated local bundles with historical or synthetic valid offline
