@@ -1,0 +1,120 @@
+name: Accelerated Curves CI
+
+on:
+  push:
+    branches:
+      - main
+      - codex/accelerated-curves
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_gpu:
+        description: Run optional CUDA feature checks
+        required: false
+        type: boolean
+        default: false
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  root:
+    name: Root facade, format, and lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust components
+        run: |
+          rustup component add rustfmt clippy
+
+      - name: Check formatting
+        run: cargo fmt --all --check
+
+      - name: Test root workspace
+        run: cargo test --workspace
+
+      - name: Test root workspace without default features
+        run: cargo test --workspace --no-default-features
+
+      - name: Test zcash-pasta-accel
+        run: cargo test -p zcash-pasta-accel
+
+      - name: Lint root workspace
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+  ragu:
+    name: Ragu accel-msm tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust components
+        run: |
+          rustup component add clippy
+
+      - name: Clone Ragu integration branch
+        run: |
+          mkdir -p repos
+          git clone --depth 1 --branch codex/accel-msm https://github.com/zmanian/ragu.git repos/ragu
+
+      - name: Test Ragu arithmetic acceleration
+        working-directory: repos/ragu
+        run: cargo test -p ragu_arithmetic --features accel-msm
+
+  halo2:
+    name: Halo2 pasta-accel tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust components
+        run: |
+          rustup component add clippy
+
+      - name: Clone Halo2 integration branch
+        run: |
+          mkdir -p repos
+          git clone --depth 1 --branch codex/pasta-accel-dispatch https://github.com/zmanian/halo2.git repos/halo2
+
+      - name: Test Halo2 accelerated MSM dispatch
+        working-directory: repos/halo2
+        run: cargo test -p halo2_proofs --features pasta-accel
+
+  zebra:
+    name: Zebra halo2-accel-verify tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust components
+        run: |
+          rustup component add clippy
+
+      - name: Clone Halo2 and Zebra integration branches
+        run: |
+          mkdir -p repos
+          git clone --depth 1 --branch codex/pasta-accel-dispatch https://github.com/zmanian/halo2.git repos/halo2
+          git clone --depth 1 --branch codex/halo2-accel-verify https://github.com/zmanian/zebra.git repos/zebra
+
+      - name: Test Zebra Halo2 acceleration feature
+        working-directory: repos/zebra
+        run: cargo test -p zebra-consensus --features halo2-accel-verify
+
+  optional-gpu:
+    name: Optional CUDA checks
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_gpu }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust components
+        run: |
+          rustup component add clippy
+
+      - name: Test CUDA feature
+        run: cargo test -p zcash-pasta-accel --features cuda
+
+      - name: Build CUDA benchmark
+        run: cargo bench -p zcash-pasta-accel --features cuda --bench msm --no-run

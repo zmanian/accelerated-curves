@@ -322,6 +322,27 @@ Initial documentation now lives under `docs/`:
 - `docs/ragu-prover-accel.md`
   - Ragu MSM hook, verification commands, benchmark gaps, and remaining work
 
+## CI Matrix
+
+The root repository now has a CPU-only default workflow:
+
+- `.github/workflows/ci.yml`
+  - runs `cargo fmt --all --check`
+  - runs `cargo test --workspace`
+  - runs `cargo test --workspace --no-default-features`
+  - runs `cargo test -p zcash-pasta-accel`
+  - runs `cargo clippy --workspace --all-targets -- -D warnings`
+  - clones `zmanian/ragu` branch `codex/accel-msm` and runs
+    `cargo test -p ragu_arithmetic --features accel-msm`
+  - clones `zmanian/halo2` branch `codex/pasta-accel-dispatch` and runs
+    `cargo test -p halo2_proofs --features pasta-accel`
+  - clones `zmanian/halo2` plus `zmanian/zebra` branch
+    `codex/halo2-accel-verify` and runs
+    `cargo test -p zebra-consensus --features halo2-accel-verify`
+  - keeps CUDA checks behind a manual `workflow_dispatch` `run_gpu` input:
+    `cargo test -p zcash-pasta-accel --features cuda` and
+    `cargo bench -p zcash-pasta-accel --features cuda --bench msm --no-run`
+
 ## Ragu MSM Integration Status
 
 Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:

@@ -95,6 +95,13 @@ threshold override without changing process-wide environment variables.
 
 ## Verification Commands
 
+The root repository also has a default GitHub Actions matrix in
+`.github/workflows/ci.yml`. It runs the non-GPU root checks below, then clones
+the personal Ragu, Halo2, and Zebra integration branches under `repos/` so
+their path dependencies resolve back to `crates/zcash-pasta-accel`.
+
+CUDA checks are manual-only through `workflow_dispatch` with `run_gpu=true`.
+
 Acceleration facade:
 
 ```sh
