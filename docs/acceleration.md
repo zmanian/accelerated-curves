@@ -138,6 +138,10 @@ cargo check -p zebrad --no-default-features --features experimental-verifier-acc
 cargo clippy -p zebra-consensus --features halo2-accel-verify --all-targets -- -D warnings
 cargo clippy -p zebra-consensus --features experimental-verifier-accept --all-targets -- -D warnings
 cargo bench -p zebra-consensus --bench halo2_sandblast_replay --no-run
+cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_items
+cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items
+cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items --features halo2-accel-verify
+cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_batch_items -- -runs=1
 ```
 
 ## FFI Boundary
@@ -170,6 +174,8 @@ fields or invalid curve coordinates before any future foreign call.
 - Zebra crosscheck mode is CPU-protected, and experimental accept is gated on
   facade backend self-tests. The current garbage Orchard proof regression is
   covered across modes, and startup logging reports backend availability and
-  self-test readiness. Broader invalid-proof corpora remain open.
+  self-test readiness. The `halo2_batch_items` fuzz target covers batch-item
+  selection and acceleration gating invariants over real local test-vector
+  items. Broader invalid-proof corpora remain open.
 - The offline replay benchmark uses repeated local test-vector bundles, not a
   historical Sandblasting block corpus.

@@ -49,6 +49,9 @@ replay evidence.
 - Zebra experimental accept mode requires an explicit build feature and a
   passing non-CPU backend self-test before it can accept the accelerated result
   directly.
+- `zebra-consensus/fuzz/halo2_batch_items` fuzzes batch-item acceleration
+  gating over real local Orchard/Halo2 test-vector items without generating or
+  sending any public-network load.
 
 ## Before Experimental Verifier Accept Mode
 
@@ -62,6 +65,8 @@ consensus behavior:
 - crosscheck burn-in with zero mismatches
 - broader invalid-proof rejection tests beyond the current garbage Orchard
   proof regression
+- continued `halo2_batch_items` fuzzing and expansion into invalid-proof
+  corpora
 - offline replay evidence with mismatch and fallback counters
 
 Until then, Zebra acceleration work should stay in CPU or crosscheck mode.

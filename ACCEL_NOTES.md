@@ -506,6 +506,18 @@ branch `codex/halo2-accel-verify`:
       acceleration candidates
   - resets and drains facade dispatch stats around CPU crosscheck validation so
     CPU-only crosschecks do not contaminate accelerated-path metrics
+  - exposes a `fuzz-impl` helper module for the standalone `cargo-fuzz`
+    target; the production API remains encapsulated unless that feature is
+    explicitly enabled
+- `repos/zebra/zebra-consensus/fuzz`
+  - adds a standalone `cargo-fuzz` package for consensus fuzz targets
+  - `halo2_batch_items` mutates real Orchard/Halo2 items extracted from local
+    Zebra block test vectors
+  - mutates batch length, source item selection, backend, mode,
+    `min_batch_actions`, and `min_msm_size`
+  - checks that Zebra's batch summary agrees with real item action counts,
+    candidate counts, CPU-mode suppression, crosscheck gating, and
+    experimental-accept gating invariants
 
 The config now reaches the runtime Orchard bundle queue point, Halo2 batch
 service metrics, scoped Halo2 MSM dispatch, and accelerated-path MSM/fallback
@@ -532,6 +544,11 @@ Zebra verification run so far:
 - `cargo check -p zebrad --no-default-features --features experimental-verifier-accept`
 - `cargo clippy -p zebra-consensus --features halo2-accel-verify --all-targets -- -D warnings`
 - `cargo clippy -p zebra-consensus --features experimental-verifier-accept --all-targets -- -D warnings`
+- `cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_items`
+- `cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items`
+- `cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items --features halo2-accel-verify`
+- `cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_batch_items -- -runs=1`
+- `cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_items --features halo2-accel-verify -- -D warnings`
 
 ## Zebra Offline Replay Benchmark
 

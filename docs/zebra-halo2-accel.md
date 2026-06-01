@@ -163,6 +163,36 @@ The current replay benchmark:
 
 It does not generate or send network load.
 
+## Fuzzing
+
+`zebra-consensus/fuzz/halo2_batch_items` is a standalone `cargo-fuzz` target
+for the Halo2 batch-item acceleration gate.
+
+The target extracts real Orchard/Halo2 items from Zebra's local block test
+vectors, then mutates:
+
+- batch length
+- source item selection
+- backend selection
+- verifier mode
+- `min_batch_actions`
+- `min_msm_size`
+
+It verifies that Zebra's fuzz-only batch summary matches the real queued item
+action counts, candidate counts, CPU-mode suppression, crosscheck gating, and
+experimental-accept gating invariants. It does not perform public-network load
+generation.
+
+Useful commands:
+
+```sh
+cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_items
+cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items
+cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items --features halo2-accel-verify
+cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_batch_items -- -runs=1
+cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_items --features halo2-accel-verify -- -D warnings
+```
+
 ## Remaining Work
 
 - broaden invalid-proof rejection coverage beyond the current garbage Orchard
