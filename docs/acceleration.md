@@ -98,7 +98,9 @@ threshold override without changing process-wide environment variables.
 The root repository also has a default GitHub Actions matrix in
 `.github/workflows/ci.yml`. It runs the non-GPU root checks below, then clones
 the personal Ragu, Halo2, and Zebra integration branches under `repos/` so
-their path dependencies resolve back to `crates/zcash-pasta-accel`.
+their path dependencies resolve back to `crates/zcash-pasta-accel`. The Zebra
+job also compile-checks and lints the Halo2 fuzz targets that exercise batch
+item summaries and invalid Orchard auth-data mutations.
 
 CUDA checks are manual-only through `workflow_dispatch` with `run_gpu=true`.
 For cloud-host validation, use `.github/workflows/hardware-validation.yml` or

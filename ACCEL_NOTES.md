@@ -347,6 +347,9 @@ The root repository now has a CPU-only default workflow:
   - clones `zmanian/halo2` plus `zmanian/zebra` branch
     `codex/halo2-accel-verify` and runs
     `cargo test -p zebra-consensus --features halo2-accel-verify`
+  - also checks and lints Zebra's `halo2_batch_items` and
+    `halo2_invalid_proofs` fuzz binaries, including
+    `halo2-accel-verify` clippy coverage
   - keeps CUDA checks behind a manual `workflow_dispatch` `run_gpu` input:
     `cargo test -p zcash-pasta-accel --features cuda` and
     `cargo bench -p zcash-pasta-accel --features cuda --bench msm --no-run`

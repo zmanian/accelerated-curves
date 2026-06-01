@@ -114,6 +114,18 @@ jobs:
         working-directory: repos/zebra
         run: cargo test -p zebra-consensus --features halo2-accel-verify
 
+      - name: Check Zebra Halo2 fuzz targets
+        working-directory: repos/zebra
+        run: |
+          cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_items
+          cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid_proofs
+
+      - name: Lint Zebra Halo2 fuzz targets
+        working-directory: repos/zebra
+        run: |
+          cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_items --features halo2-accel-verify -- -D warnings
+          cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid_proofs --features halo2-accel-verify -- -D warnings
+
   optional-gpu:
     name: Optional CUDA checks
     runs-on: ubuntu-latest
