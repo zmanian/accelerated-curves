@@ -84,6 +84,12 @@ For `seed_with_accel_config`, the synthetic trivial child proofs and the
 subsequent fuse step are built with the same explicit config, so fallback
 counters cover the whole seed construction.
 
+The default `accel-msm` test pass now compiles broader explicit-config proof
+path regressions for `fuse_with_accel_config` and
+`rerandomize_with_accel_config`. Those two tests are marked ignored because
+full PCD proof construction is too slow for the normal focused loop on a
+laptop; run them explicitly when changing prover acceleration plumbing.
+
 ## Verification
 
 Focused commands:
@@ -94,7 +100,8 @@ cargo test -p ragu_arithmetic --features accel-msm
 cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_forced_backend_fallback -- --test-threads=1
 cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1
 cargo test -p ragu_circuits --features accel-msm commit_matches_dense -- --test-threads=1
-cargo test -p ragu_pcd --features accel-msm seed_with_accel_config_falls_back_and_verifies -- --test-threads=1
+cargo test -p ragu_pcd --features accel-msm with_accel_config_falls_back -- --test-threads=1
+cargo test -p ragu_pcd --features accel-msm with_accel_config_falls_back -- --ignored --test-threads=1
 cargo check -p ragu_arithmetic --no-default-features --features alloc
 cargo check -p ragu_pcd --no-default-features --features alloc
 cargo clippy -p ragu_arithmetic --features accel-msm --all-targets -- -D warnings
@@ -138,8 +145,8 @@ Target measurements still needed for production benchmark reports:
 
 ## Remaining Work
 
-- add broader proof differential tests beyond the current forced-fallback seed
-  path
+- capture cloud-machine timings for the ignored full proof-path fallback
+  regressions once AVX-512 and CUDA hosts are available
 - route future FFT acceleration through `accel-fft` only after benchmarks show
   useful crossover points
 - keep no-std/default builds free of CUDA dependencies

@@ -381,6 +381,11 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
 - `repos/ragu/crates/ragu_pcd/src/fuse/*.rs`
   - routes direct bridge/native commitment construction through `ProofBuilder`
     helpers so the explicit config reaches real proof construction
+- `repos/ragu/crates/ragu_pcd/tests/rerandomization.rs`
+  - keeps the normal forced-fallback seed proof regression
+  - compiles ignored/manual forced-fallback regressions for explicit-config
+    `fuse` and `rerandomize` proof paths, preserving broader coverage without
+    slowing the default focused loop
 
 Ragu verification run so far:
 
@@ -389,7 +394,7 @@ Ragu verification run so far:
 - `cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_forced_backend_fallback -- --test-threads=1`
 - `cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1`
 - `cargo test -p ragu_circuits --features accel-msm commit_matches_dense -- --test-threads=1`
-- `cargo test -p ragu_pcd --features accel-msm seed_with_accel_config_falls_back_and_verifies -- --test-threads=1`
+- `cargo test -p ragu_pcd --features accel-msm with_accel_config_falls_back -- --test-threads=1`
 - `cargo check -p ragu_arithmetic --no-default-features --features alloc`
 - `cargo check -p ragu_pcd --no-default-features --features alloc`
 - `cargo clippy -p ragu_arithmetic --features accel-msm --all-targets -- -D warnings`

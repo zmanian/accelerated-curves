@@ -12,7 +12,7 @@ use std::cell::Cell;
 
 use pasta_curves::{
     arithmetic::CurveAffine,
-    group::{ff::Field, prime::PrimeCurveAffine, Curve, Group},
+    group::{ff::Field, Curve, Group},
     pallas, vesta,
 };
 
@@ -335,7 +335,7 @@ fn pallas_backend_self_test(backend: Backend) -> bool {
     let bases = [
         pallas::Point::generator().to_affine(),
         (pallas::Point::generator() * pallas::Scalar::from(7)).to_affine(),
-        pallas::Affine::identity(),
+        pallas::Point::identity().to_affine(),
         (pallas::Point::generator() * pallas::Scalar::from(19)).to_affine(),
     ];
     let scalars = [
@@ -354,7 +354,7 @@ fn vesta_backend_self_test(backend: Backend) -> bool {
     let bases = [
         vesta::Point::generator().to_affine(),
         (vesta::Point::generator() * vesta::Scalar::from(7)).to_affine(),
-        vesta::Affine::identity(),
+        vesta::Point::identity().to_affine(),
         (vesta::Point::generator() * vesta::Scalar::from(19)).to_affine(),
     ];
     let scalars = [
