@@ -522,9 +522,10 @@ Zebra now has an offline Orchard/Halo2 replay benchmark skeleton:
   - reuses the shared extraction helper
 - `repos/zebra/zebra-consensus/benches/halo2_sandblast_replay.rs`
   - replays local test-vector Orchard bundles only
-  - pins `ZCASH_ACCEL=off` and `ZCASH_ACCEL_VERIFY_MODE=cpu`
   - compares unbatched single-bundle verification with the current async
     Halo2 batch service
+  - adds a feature-gated `crosscheck_batch_service` series under
+    `halo2-accel-verify`
   - reports throughput in Orchard actions
   - uses repeated local bundles to approximate backlog pressure without any
     public-network load generation
@@ -532,6 +533,7 @@ Zebra now has an offline Orchard/Halo2 replay benchmark skeleton:
 Replay benchmark verification run so far:
 
 - `cargo bench -p zebra-consensus --bench halo2_sandblast_replay --no-run`
+- `cargo bench -p zebra-consensus --features halo2-accel-verify --bench halo2_sandblast_replay --no-run`
 - `cargo bench -p zebra-consensus --bench halo2 --no-run`
 
 Known caveat:

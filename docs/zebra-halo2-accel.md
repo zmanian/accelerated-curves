@@ -126,14 +126,16 @@ Compile the offline replay benchmark:
 
 ```sh
 cargo bench -p zebra-consensus --bench halo2_sandblast_replay --no-run
+cargo bench -p zebra-consensus --features halo2-accel-verify --bench halo2_sandblast_replay --no-run
 ```
 
 The current replay benchmark:
 
 - uses local Zebra test vectors only
 - repeats local Orchard bundles to approximate backlog pressure
-- pins CPU mode
 - compares unbatched verification with the existing async batch service
+- adds a feature-gated crosscheck batch-service series when built with
+  `halo2-accel-verify`
 - reports throughput in Orchard actions
 
 It does not generate or send network load.
@@ -143,5 +145,7 @@ It does not generate or send network load.
 - promote the backend self-test gate into explicit startup telemetry/operator
   reporting
 - add invalid-proof rejection coverage for every mode
+- add an experimental-accept replay series once hardware burn-in evidence is
+  available
 - replace repeated local bundles with historical or synthetic valid offline
   replay corpora when available
