@@ -5,6 +5,8 @@
 //! the pure Rust CPU path is available unless future feature-gated backends are
 //! added.
 
+#![deny(unsafe_op_in_unsafe_fn)]
+
 use core::any::Any;
 use std::cell::Cell;
 
@@ -102,6 +104,23 @@ pub fn backend_available(backend: Backend) -> bool {
         Backend::Cpu | Backend::Auto => true,
         Backend::Cuda => cuda_available(),
         Backend::Avx512 => avx512_available(),
+    }
+}
+
+/// Returns whether the current CPU reports the AVX-512 IFMA feature.
+///
+/// This is diagnostic only. Until a real AVX-512 MSM implementation is wired
+/// in, [`Backend::Avx512`] still reports unavailable and returns
+/// [`AccelError::UnsupportedBackend`].
+pub fn avx512_runtime_detected() -> bool {
+    #[cfg(target_arch = "x86_64")]
+    {
+        std::arch::is_x86_feature_detected!("avx512ifma")
+    }
+
+    #[cfg(not(target_arch = "x86_64"))]
+    {
+        false
     }
 }
 
@@ -385,15 +404,7 @@ fn best_available_backend() -> Backend {
 }
 
 fn avx512_available() -> bool {
-    #[cfg(all(feature = "avx512", target_arch = "x86_64"))]
-    {
-        std::arch::is_x86_feature_detected!("avx512ifma")
-    }
-
-    #[cfg(not(all(feature = "avx512", target_arch = "x86_64")))]
-    {
-        false
-    }
+    false
 }
 
 fn cuda_available() -> bool {
@@ -460,22 +471,16 @@ fn avx512_msm_pallas(
     scalars: &[pallas::Scalar],
     bases: &[pallas::Affine],
 ) -> Result<pallas::Point, AccelError> {
-    if avx512_available() {
-        Ok(cpu_msm_pallas(scalars, bases))
-    } else {
-        Err(AccelError::UnsupportedBackend)
-    }
+    let _ = (scalars, bases);
+    Err(AccelError::UnsupportedBackend)
 }
 
 fn avx512_msm_vesta(
     scalars: &[vesta::Scalar],
     bases: &[vesta::Affine],
 ) -> Result<vesta::Point, AccelError> {
-    if avx512_available() {
-        Ok(cpu_msm_vesta(scalars, bases))
-    } else {
-        Err(AccelError::UnsupportedBackend)
-    }
+    let _ = (scalars, bases);
+    Err(AccelError::UnsupportedBackend)
 }
 
 fn downcast_curve<C, P>(point: &P) -> Option<C::Curve>

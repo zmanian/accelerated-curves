@@ -17,6 +17,8 @@ The default behavior is conservative:
   - shared acceleration facade
   - currently implements CPU MSM for Pallas and Vesta
   - exposes CUDA and AVX-512 backend selectors as feature-gated/future paths
+  - exposes AVX-512 runtime detection for diagnostics without claiming the
+    stub is a usable backend
   - includes an optional `pasta-msm` CUDA adapter behind `cuda`
   - treats CUDA as available only when `pasta-msm` reports real CUDA runtime
     availability
@@ -99,6 +101,7 @@ Acceleration facade:
 cargo test -p zcash-pasta-accel -- --test-threads=1
 cargo test -p zcash-pasta-accel --features cuda -- --test-threads=1
 cargo test -p zcash-pasta-accel --features avx512 -- --test-threads=1
+cargo test -p zcash-pasta-accel --features avx512 avx512_runtime_detection_does_not_claim_stub_backend_availability -- --test-threads=1
 cargo clippy -p zcash-pasta-accel --all-targets -- -D warnings
 cargo clippy -p zcash-pasta-accel --features cuda --all-targets -- -D warnings
 cargo bench -p zcash-pasta-accel --bench msm --no-run
@@ -157,10 +160,14 @@ fields or invalid curve coordinates before any future foreign call.
 - The cloned `pasta-msm` crate has fallible `try_pallas`/`try_vesta` wrappers.
   The root facade maps length mismatches, CUDA errors, and unavailable runtime
   state into `AccelError` instead of exposing panics.
-- AVX-512 currently uses runtime detection and CPU fallback behavior.
+- AVX-512 currently exposes runtime detection only. `Backend::Avx512` remains
+  unavailable and returns `UnsupportedBackend` until a real AVX-512 MSM is
+  implemented, so it cannot satisfy accelerated verifier self-tests by
+  returning the CPU result.
 - Ragu acceleration is MSM-only.
 - Zebra crosscheck mode is CPU-protected, and experimental accept is gated on
-  facade backend self-tests, but still lacks invalid-proof coverage for every
-  mode and operator-facing startup telemetry.
+  facade backend self-tests. The current garbage Orchard proof regression is
+  covered across modes; broader invalid-proof corpora and operator-facing
+  startup telemetry remain open.
 - The offline replay benchmark uses repeated local test-vector bundles, not a
   historical Sandblasting block corpus.

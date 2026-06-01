@@ -22,7 +22,8 @@ replay evidence.
 
 ## Current Safety Boundaries
 
-- `zcash-pasta-accel` has no unsafe code in the current CPU facade.
+- `zcash-pasta-accel` has no unsafe code in the current CPU facade and denies
+  unsafe operations inside unsafe functions for future FFI work.
 - The current FFI boundary is Rust-only layout and validation code: canonical
   field parsing, checked curve-coordinate parsing, and explicit infinity flags.
 - The cloned `pasta-msm` crate exposes fallible wrappers so future integration
@@ -30,8 +31,9 @@ replay evidence.
 - `Backend::Cuda` returns `UnsupportedBackend` without the `cuda` feature and
   `BackendUnavailable` when `cuda` is compiled but real CUDA runtime
   availability is absent.
-- `Backend::Avx512` is runtime-gated and falls back to CPU only in the stubbed
-  available path.
+- `Backend::Avx512` exposes runtime CPU feature detection for diagnostics, but
+  the backend remains unavailable and returns `UnsupportedBackend` until a real
+  AVX-512 MSM implementation exists.
 - `backend_self_test` compares deterministic Pallas and Vesta MSMs against the
   CPU path; `accelerated_backend_self_test` only passes for non-CPU backends.
 - Ragu falls back to its existing CPU `mul` implementation when the accelerator
@@ -56,7 +58,8 @@ consensus behavior:
 - startup/operator reporting for backend self-test status
 - CPU fallback on backend errors
 - crosscheck burn-in with zero mismatches
-- invalid-proof rejection tests in every mode
+- broader invalid-proof rejection tests beyond the current garbage Orchard
+  proof regression
 - offline replay evidence with mismatch and fallback counters
 
 Until then, Zebra acceleration work should stay in CPU or crosscheck mode.

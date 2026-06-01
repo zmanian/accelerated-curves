@@ -213,6 +213,7 @@ Implemented API:
 - `DispatchConfig`
 - `AccelError`
 - `accelerated_backend_self_test`
+- `avx512_runtime_detected`
 - `backend_available`
 - `backend_self_test`
 - `dispatch_config`
@@ -240,18 +241,19 @@ Current behavior:
   against the CPU path; `accelerated_backend_self_test` only passes for non-CPU
   backends that are available and coherent.
 - Unknown `ZCASH_ACCEL` values fall back to CPU.
-- `Backend::Cuda` and `Backend::Avx512` return
-  `AccelError::UnsupportedBackend` unless a future backend is compiled and
-  available.
-- `avx512` uses runtime `avx512ifma` detection under `--features avx512`;
-  until a real AVX-512 MSM is implemented, the available-path stub delegates to
-  CPU.
+- `Backend::Cuda` returns `AccelError::UnsupportedBackend` unless the CUDA
+  feature is compiled; when compiled, it remains unavailable unless the cloned
+  `pasta-msm` adapter reports real CUDA runtime availability.
+- `avx512_runtime_detected` reports the CPU's `avx512ifma` capability for
+  diagnostics, but `Backend::Avx512` remains unavailable and returns
+  `AccelError::UnsupportedBackend` until a real AVX-512 MSM is implemented.
 - `cuda` has an explicit build gate stub; until a CUDA adapter is implemented,
   `Backend::Cuda` depends on the optional cloned `pasta-msm` adapter but stays
   unavailable unless `pasta-msm` reports real CUDA runtime availability.
   CPU-only `pasta-msm` C++ fallback is not treated as CUDA availability.
 - Length mismatches return `AccelError::LengthMismatch`.
-- No unsafe code is used in the crate.
+- No unsafe code is used in the crate, and the crate denies unsafe operations
+  inside unsafe functions for future FFI work.
 
 ## Local Deliverable 2 FFI Boundary
 
@@ -281,6 +283,7 @@ Current verification:
 - `cargo test -p zcash-pasta-accel`
 - `cargo test -p zcash-pasta-accel --features cuda`
 - `cargo test -p zcash-pasta-accel --features avx512`
+- `cargo test -p zcash-pasta-accel --features avx512 avx512_runtime_detection_does_not_claim_stub_backend_availability -- --test-threads=1`
 - `cargo clippy -p zcash-pasta-accel --features cuda --all-targets -- -D warnings`
 - `cargo bench -p zcash-pasta-accel --features cuda --bench msm --no-run`
 - `cargo test --workspace`

@@ -7,10 +7,11 @@ use rand::{RngCore, SeedableRng};
 use rand_chacha::ChaCha20Rng;
 use std::sync::{Mutex, OnceLock};
 use zcash_pasta_accel::{
-    accelerated_backend_self_test, backend_available, backend_self_test, dispatch_config,
-    min_msm_size, msm_pallas, msm_vesta, record_msm_candidate, record_msm_fallback,
-    record_msm_success, reset_dispatch_stats, selected_backend, take_dispatch_stats, try_msm,
-    with_dispatch_config, AccelError, Backend, DispatchConfig, DispatchStats,
+    accelerated_backend_self_test, avx512_runtime_detected, backend_available, backend_self_test,
+    dispatch_config, min_msm_size, msm_pallas, msm_vesta, record_msm_candidate,
+    record_msm_fallback, record_msm_success, reset_dispatch_stats, selected_backend,
+    take_dispatch_stats, try_msm, with_dispatch_config, AccelError, Backend, DispatchConfig,
+    DispatchStats,
 };
 
 fn env_lock() -> std::sync::MutexGuard<'static, ()> {
@@ -45,8 +46,16 @@ fn cpu_backend_is_available_by_default() {
 #[test]
 fn unavailable_backends_report_unavailable() {
     assert!(!backend_available(Backend::Cuda));
-    #[cfg(not(all(feature = "avx512", target_arch = "x86_64")))]
     assert!(!backend_available(Backend::Avx512));
+}
+
+#[test]
+fn avx512_runtime_detection_does_not_claim_stub_backend_availability() {
+    let _ = avx512_runtime_detected();
+
+    assert!(!backend_available(Backend::Avx512));
+    assert!(!backend_self_test(Backend::Avx512));
+    assert!(!accelerated_backend_self_test(Backend::Avx512));
 }
 
 #[test]
