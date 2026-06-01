@@ -26,6 +26,8 @@ The default behavior is conservative:
     gates
   - exposes thread-local dispatch stats for candidate MSM points, accelerated
     successes, and CPU fallbacks
+  - exposes a deterministic MSM schedule planner that classifies small CPU
+    work, medium MSM batches, and large standalone acceleration candidates
   - includes checked `#[repr(C)]` FFI field/point layouts for future CUDA
     adapters
 - `repos/ragu`
@@ -92,6 +94,23 @@ Zebra:
 Verifier/prover integrations can also use
 `zcash_pasta_accel::with_dispatch_config` to install a thread-local backend and
 threshold override without changing process-wide environment variables.
+
+## MSM Schedule Planning
+
+`zcash_pasta_accel::plan_msm_schedule` is a policy-only helper for the next
+layer of Ragu-shaped acceleration work. It accepts a list of pending MSM sizes
+and an `MsmBatchConfig`, then returns per-request decisions plus a summary:
+
+- `Cpu` for work that should stay on the caller's CPU path.
+- `Batch` for medium MSMs that collectively clear the configured item and point
+  floors.
+- `Immediate` for large MSMs that should be dispatched as standalone
+  acceleration work.
+
+The planner does not check CUDA/AVX-512 runtime availability and does not
+execute kernels. It exists so Ragu, Halo2, and Zebra can share deterministic
+threshold and batching policy before GPU streams, reusable buffers,
+persistent-base handles, or CUDA Graphs are introduced.
 
 ## Local Verification Commands
 

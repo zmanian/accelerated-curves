@@ -52,6 +52,157 @@ impl Default for DispatchConfig {
     }
 }
 
+/// Default minimum size for a medium MSM to be considered batchable.
+pub const DEFAULT_MIN_BATCH_MSM: usize = 1024;
+
+/// Default number of medium MSMs required before a batch is worth scheduling.
+pub const DEFAULT_MIN_BATCH_ITEMS: usize = 2;
+
+/// Default total points required before a medium-MSM batch is worth scheduling.
+pub const DEFAULT_MIN_BATCH_POINTS: usize = DEFAULT_MIN_MSM;
+
+/// Policy knobs for planning MSM execution before handing work to a backend.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct MsmBatchConfig {
+    /// Backend requested for accelerated work.
+    pub backend: Backend,
+    /// MSMs at or above this size are considered standalone acceleration work.
+    pub min_single_msm_size: usize,
+    /// MSMs at or above this size but below `min_single_msm_size` can be batched.
+    pub min_batch_msm_size: usize,
+    /// Minimum number of medium MSMs required to keep a batch candidate.
+    pub min_batch_items: usize,
+    /// Minimum total points required to keep a batch candidate.
+    pub min_batch_points: usize,
+}
+
+impl Default for MsmBatchConfig {
+    fn default() -> Self {
+        Self {
+            backend: Backend::Cpu,
+            min_single_msm_size: DEFAULT_MIN_MSM,
+            min_batch_msm_size: DEFAULT_MIN_BATCH_MSM,
+            min_batch_items: DEFAULT_MIN_BATCH_ITEMS,
+            min_batch_points: DEFAULT_MIN_BATCH_POINTS,
+        }
+    }
+}
+
+impl From<DispatchConfig> for MsmBatchConfig {
+    fn from(config: DispatchConfig) -> Self {
+        Self {
+            backend: config.backend,
+            min_single_msm_size: config.min_msm_size,
+            ..Self::default()
+        }
+    }
+}
+
+/// Schedule decision for one MSM request in an [`MsmBatchPlan`].
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum MsmScheduleDecision {
+    /// Run this MSM on the caller's CPU path.
+    Cpu,
+    /// Accumulate this medium MSM with compatible batch work.
+    Batch,
+    /// Send this large MSM to the requested backend as standalone work.
+    Immediate,
+}
+
+/// Aggregate counts for an MSM schedule plan.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct MsmScheduleSummary {
+    /// Number of MSMs assigned to CPU execution.
+    pub cpu_items: u64,
+    /// Total points assigned to CPU execution.
+    pub cpu_points: u64,
+    /// Number of MSMs assigned to medium-MSM batching.
+    pub batch_items: u64,
+    /// Total points assigned to medium-MSM batching.
+    pub batch_points: u64,
+    /// Number of MSMs assigned to standalone accelerated execution.
+    pub immediate_items: u64,
+    /// Total points assigned to standalone accelerated execution.
+    pub immediate_points: u64,
+}
+
+impl MsmScheduleSummary {
+    fn record(&mut self, decision: MsmScheduleDecision, points: usize) {
+        let points = points as u64;
+        match decision {
+            MsmScheduleDecision::Cpu => {
+                self.cpu_items = self.cpu_items.saturating_add(1);
+                self.cpu_points = self.cpu_points.saturating_add(points);
+            }
+            MsmScheduleDecision::Batch => {
+                self.batch_items = self.batch_items.saturating_add(1);
+                self.batch_points = self.batch_points.saturating_add(points);
+            }
+            MsmScheduleDecision::Immediate => {
+                self.immediate_items = self.immediate_items.saturating_add(1);
+                self.immediate_points = self.immediate_points.saturating_add(points);
+            }
+        }
+    }
+}
+
+/// Policy-only MSM schedule plan.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub struct MsmBatchPlan {
+    /// Per-request decisions matching the input order.
+    pub decisions: Vec<MsmScheduleDecision>,
+    /// Aggregate counts for logging, metrics, and threshold tuning.
+    pub summary: MsmScheduleSummary,
+}
+
+/// Plans how a set of pending MSM sizes should be scheduled.
+///
+/// This does not inspect backend availability or execute work. It gives Ragu,
+/// Halo2, and Zebra integration points a deterministic way to decide whether
+/// small MSMs stay on CPU, medium MSMs are worth batching, and large MSMs
+/// should be dispatched immediately.
+pub fn plan_msm_schedule(request_points: &[usize], config: MsmBatchConfig) -> MsmBatchPlan {
+    let mut decisions = Vec::with_capacity(request_points.len());
+    let acceleration_requested = config.backend != Backend::Cpu;
+    let min_single_msm_size = config.min_single_msm_size.max(1);
+    let min_batch_msm_size = config.min_batch_msm_size.max(1);
+
+    let mut batch_items = 0_u64;
+    let mut batch_points = 0_u64;
+
+    for &points in request_points {
+        let decision = if !acceleration_requested || points == 0 {
+            MsmScheduleDecision::Cpu
+        } else if points >= min_single_msm_size {
+            MsmScheduleDecision::Immediate
+        } else if points >= min_batch_msm_size {
+            batch_items = batch_items.saturating_add(1);
+            batch_points = batch_points.saturating_add(points as u64);
+            MsmScheduleDecision::Batch
+        } else {
+            MsmScheduleDecision::Cpu
+        };
+
+        decisions.push(decision);
+    }
+
+    if batch_items < config.min_batch_items as u64 || batch_points < config.min_batch_points as u64
+    {
+        for decision in &mut decisions {
+            if *decision == MsmScheduleDecision::Batch {
+                *decision = MsmScheduleDecision::Cpu;
+            }
+        }
+    }
+
+    let mut summary = MsmScheduleSummary::default();
+    for (&decision, &points) in decisions.iter().zip(request_points.iter()) {
+        summary.record(decision, points);
+    }
+
+    MsmBatchPlan { decisions, summary }
+}
+
 /// Per-thread acceleration dispatch counters.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct DispatchStats {

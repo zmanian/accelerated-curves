@@ -8,10 +8,10 @@ use rand_chacha::ChaCha20Rng;
 use std::sync::{Mutex, OnceLock};
 use zcash_pasta_accel::{
     accelerated_backend_self_test, avx512_runtime_detected, backend_available, backend_self_test,
-    dispatch_config, min_msm_size, msm_pallas, msm_vesta, record_msm_candidate,
+    dispatch_config, min_msm_size, msm_pallas, msm_vesta, plan_msm_schedule, record_msm_candidate,
     record_msm_fallback, record_msm_success, reset_dispatch_stats, selected_backend,
     take_dispatch_stats, try_msm, with_dispatch_config, AccelError, Backend, DispatchConfig,
-    DispatchStats,
+    DispatchStats, MsmBatchConfig, MsmScheduleDecision, MsmScheduleSummary,
 };
 
 fn env_lock() -> std::sync::MutexGuard<'static, ()> {
@@ -198,6 +198,99 @@ fn dispatch_stats_track_candidates_successes_and_fallbacks() {
         }
     );
     assert_eq!(take_dispatch_stats(), DispatchStats::default());
+}
+
+#[test]
+fn msm_schedule_plan_batches_medium_work_and_keeps_large_work_immediate() {
+    let config = MsmBatchConfig {
+        backend: Backend::Cuda,
+        min_single_msm_size: 4096,
+        min_batch_msm_size: 1024,
+        min_batch_items: 3,
+        min_batch_points: 4096,
+    };
+
+    let plan = plan_msm_schedule(&[512, 1024, 1536, 2048, 4096], config);
+
+    assert_eq!(
+        plan.decisions,
+        vec![
+            MsmScheduleDecision::Cpu,
+            MsmScheduleDecision::Batch,
+            MsmScheduleDecision::Batch,
+            MsmScheduleDecision::Batch,
+            MsmScheduleDecision::Immediate,
+        ]
+    );
+    assert_eq!(
+        plan.summary,
+        MsmScheduleSummary {
+            cpu_items: 1,
+            cpu_points: 512,
+            batch_items: 3,
+            batch_points: 4608,
+            immediate_items: 1,
+            immediate_points: 4096,
+        }
+    );
+}
+
+#[test]
+fn msm_schedule_plan_demotes_underfilled_batches_to_cpu() {
+    let config = MsmBatchConfig {
+        backend: Backend::Cuda,
+        min_single_msm_size: 4096,
+        min_batch_msm_size: 1024,
+        min_batch_items: 3,
+        min_batch_points: 4096,
+    };
+
+    let plan = plan_msm_schedule(&[1024, 1024], config);
+
+    assert_eq!(
+        plan.decisions,
+        vec![MsmScheduleDecision::Cpu, MsmScheduleDecision::Cpu]
+    );
+    assert_eq!(
+        plan.summary,
+        MsmScheduleSummary {
+            cpu_items: 2,
+            cpu_points: 2048,
+            batch_items: 0,
+            batch_points: 0,
+            immediate_items: 0,
+            immediate_points: 0,
+        }
+    );
+}
+
+#[test]
+fn msm_schedule_plan_cpu_backend_suppresses_acceleration_candidates() {
+    let config = MsmBatchConfig {
+        backend: Backend::Cpu,
+        min_single_msm_size: 4096,
+        min_batch_msm_size: 1024,
+        min_batch_items: 2,
+        min_batch_points: 2048,
+    };
+
+    let plan = plan_msm_schedule(&[1024, 8192], config);
+
+    assert_eq!(
+        plan.decisions,
+        vec![MsmScheduleDecision::Cpu, MsmScheduleDecision::Cpu]
+    );
+    assert_eq!(
+        plan.summary,
+        MsmScheduleSummary {
+            cpu_items: 2,
+            cpu_points: 9216,
+            batch_items: 0,
+            batch_points: 0,
+            immediate_items: 0,
+            immediate_points: 0,
+        }
+    );
 }
 
 #[test]

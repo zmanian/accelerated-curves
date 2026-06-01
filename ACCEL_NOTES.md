@@ -211,6 +211,10 @@ Implemented API:
 
 - `Backend::{Cpu, Cuda, Avx512, Auto}`
 - `DispatchConfig`
+- `MsmBatchConfig`
+- `MsmBatchPlan`
+- `MsmScheduleDecision`
+- `MsmScheduleSummary`
 - `AccelError`
 - `accelerated_backend_self_test`
 - `avx512_runtime_detected`
@@ -220,6 +224,7 @@ Implemented API:
 - `min_msm_size`
 - `msm_pallas`
 - `msm_vesta`
+- `plan_msm_schedule`
 - `with_dispatch_config`
 - `record_msm_candidate`
 - `record_msm_success`
@@ -237,6 +242,10 @@ Current behavior:
   for verifier/prover integrations without mutating process-wide environment.
 - Thread-local `DispatchStats` tracks candidate MSM calls, total candidate
   points, accelerated successes, and CPU fallbacks for integration metrics.
+- `plan_msm_schedule` classifies pending MSM sizes into CPU, medium-batch, and
+  immediate large-MSM decisions using explicit thresholds. This is a
+  policy-only bridge toward the Ragu-shaped scheduler work: it does not check
+  hardware availability or execute kernels.
 - `backend_self_test` runs deterministic Pallas and Vesta MSM comparisons
   against the CPU path; `accelerated_backend_self_test` only passes for non-CPU
   backends that are available and coherent.
@@ -297,6 +306,9 @@ Current verification:
   points, repeated bases, high-value scalars, length mismatch, unsupported
   backends, backend self-test gating, larger seeded Pallas/Vesta cases, and
   proptest-generated Pallas/Vesta MSM equivalence cases.
+- Schedule-planner test coverage includes medium MSM batching, demotion of
+  underfilled batches back to CPU, and CPU-backend suppression of acceleration
+  candidates.
 - FFI test coverage includes C-layout sanity checks, little-endian field limb
   round trips, noncanonical field rejection, Pallas/Vesta affine round trips,
   invalid affine-coordinate rejection, identity flags, and Pallas/Vesta

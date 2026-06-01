@@ -21,6 +21,8 @@ The safety posture is simple:
   - shared Rust acceleration facade for Pallas/Vesta MSM dispatch
   - CPU implementation, backend selection, scoped dispatch config, stats, and
     checked FFI point/field layouts
+  - deterministic MSM schedule planning for CPU, medium-batch, and large
+    immediate-dispatch work
 - `repos/pasta-msm`
   - personal branch: `codex/pasta-msm-fallible`
   - fallible `try_pallas` and `try_vesta` APIs plus CUDA runtime availability
@@ -159,6 +161,8 @@ runs as hardware burn-in evidence, not as a replacement for the local loop.
 ## Current Open Work
 
 - Run CUDA and AVX-512 validation on real hardware.
+- Wire the root MSM schedule planner into Ragu/Halo2/Zebra call sites before
+  adding GPU streams, memory pools, or persistent-base handles.
 - Add Zebra experimental-accept replay coverage after hardware burn-in evidence
   exists.
 - Replace repeated local replay bundles with historical or synthetic valid
