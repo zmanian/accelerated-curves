@@ -475,6 +475,8 @@ branch `codex/halo2-accel-verify`:
     unless Zebra is built with `experimental-verifier-accept` and the requested
     non-CPU backend passes `accelerated_backend_self_test`
   - records batch-service metrics:
+    - `zebra.consensus.halo2.accel.backend`
+    - `zebra.consensus.halo2.accel.mode`
     - `zebra.consensus.halo2.accel.batch_actions`
     - `zebra.consensus.halo2.accel.duration_seconds`
     - `zebra.consensus.halo2.accel.crosscheck_mismatches`
@@ -499,6 +501,7 @@ Zebra verification run so far:
 - `cargo test -p zebra-consensus halo2_batch_accel_context_tracks_candidate_actions -- --test-threads=1`
 - `cargo test -p zebra-consensus --features halo2-accel-verify halo2_batch_accel_context_tracks_candidate_actions -- --test-threads=1`
 - `cargo test -p zebra-consensus --features halo2-accel-verify halo2_batch_accel_context -- --test-threads=1`
+- `cargo test -p zebra-consensus halo2_batch_accel_records_backend_and_mode_selection_metrics -- --test-threads=1`
 - `cargo test -p zebra-consensus --features halo2-accel-verify halo2_batch_accel_takes_facade_dispatch_stats -- --test-threads=1`
 - `cargo test -p zebra-consensus --features halo2-accel-verify halo2_batch_accel -- --test-threads=1`
 - `cargo test -p zebra-consensus --features experimental-verifier-accept halo2_batch_accel_experimental_accept -- --test-threads=1`

@@ -100,6 +100,8 @@ Labels:
 
 Current batch-service metrics:
 
+- `zebra.consensus.halo2.accel.backend`
+- `zebra.consensus.halo2.accel.mode`
 - `zebra.consensus.halo2.accel.batch_actions`
 - `zebra.consensus.halo2.accel.duration_seconds`
 - `zebra.consensus.halo2.accel.crosscheck_mismatches`
@@ -117,11 +119,6 @@ Labels:
 - `mismatch` on crosscheck mismatch counter only
 - `candidate` is not attached to `msm_points` or `fallbacks`; those metrics
   are only emitted for batches Zebra classified as acceleration candidates
-
-Planned metrics still needed by the implementation plan:
-
-- `zebra.consensus.halo2.accel.backend`
-- `zebra.consensus.halo2.accel.mode`
 
 ## Offline Replay
 
@@ -145,8 +142,6 @@ It does not generate or send network load.
 
 - promote the backend self-test gate into explicit startup telemetry/operator
   reporting
-- add backend and mode gauges once those runtime paths can observe backend
-  decisions directly
 - add invalid-proof rejection coverage for every mode
 - replace repeated local bundles with historical or synthetic valid offline
   replay corpora when available
