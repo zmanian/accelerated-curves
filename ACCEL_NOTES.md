@@ -542,6 +542,10 @@ branch `codex/halo2-accel-verify`:
   - checks that Zebra's batch summary agrees with real item action counts,
     candidate counts, CPU-mode suppression, crosscheck gating, and
     experimental-accept gating invariants
+- `repos/zebra/zebra-consensus/src/transaction/tests.rs`
+  - broadens the CVE-2026-34377 mempool-cache regression coverage with
+    txid-preserving Orchard auth-data mutations for proof bytes, binding
+    signatures, and spend authorization signatures
 
 The config now reaches the runtime Orchard bundle queue point, Halo2 batch
 service metrics, scoped Halo2 MSM dispatch, and accelerated-path MSM/fallback
@@ -561,6 +565,7 @@ Zebra verification run so far:
 - `cargo test -p zebra-consensus --features halo2-accel-verify halo2_batch_accel -- --test-threads=1`
 - `cargo test -p zebra-consensus --features experimental-verifier-accept halo2_batch_accel_experimental_accept -- --test-threads=1`
 - `cargo test -p zebra-consensus block_with_garbage_orchard_proofs_is_rejected -- --test-threads=1`
+- `cargo test -p zebra-consensus block_with_individual_orchard_auth_data_mutations_is_rejected -- --test-threads=1`
 - `cargo test -p zebra-consensus --features halo2-accel-verify block_with_garbage_orchard_proofs_is_rejected -- --test-threads=1`
 - `cargo test -p zebra-consensus --features experimental-verifier-accept block_with_garbage_orchard_proofs_is_rejected -- --test-threads=1`
 - `cargo check -p zebra-consensus --features halo2-accel-verify`
@@ -603,10 +608,11 @@ Known caveat:
 
 - feature-enabled Zebra checks compile through the cloned Halo2 and root
   `zcash-pasta-accel` crates, and crosscheck mode is CPU-accepting. Production
-  experimental accept now has regression coverage showing the existing garbage
-  Orchard proof rejection path still rejects in CPU, crosscheck, experimental
+  experimental accept now has regression coverage showing the garbage Orchard
+  auth-data rejection path still rejects in CPU, crosscheck, experimental
   fallback, and experimental-accept builds, plus startup backend self-test
-  reporting. It still needs a broader invalid-proof corpus and hardware burn-in
-  evidence.
+  reporting. It also covers individual txid-preserving Orchard auth-data
+  mutations in CPU mode. It still needs a real invalid-proof corpus built from
+  valid Orchard bundles and hardware burn-in evidence.
 - the replay benchmark currently uses repeated local test-vector bundles, not
   historical Sandblasting-era block data or synthetic valid Orchard bundles.

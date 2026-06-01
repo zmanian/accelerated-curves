@@ -179,10 +179,11 @@ fields or invalid curve coordinates before any future foreign call.
   returning the CPU result.
 - Ragu acceleration is MSM-only.
 - Zebra crosscheck mode is CPU-protected, and experimental accept is gated on
-  facade backend self-tests. The current garbage Orchard proof regression is
-  covered across modes, and startup logging reports backend availability and
+  facade backend self-tests. The garbage Orchard auth-data regression is
+  covered across modes, individual txid-preserving auth-data mutations are
+  covered in CPU mode, and startup logging reports backend availability and
   self-test readiness. The `halo2_batch_items` fuzz target covers batch-item
   selection and acceleration gating invariants over real local test-vector
-  items. Broader invalid-proof corpora remain open.
+  items. Valid-bundle-derived invalid-proof corpora remain open.
 - The offline replay benchmark uses repeated local test-vector bundles, not a
   historical Sandblasting block corpus.

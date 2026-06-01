@@ -103,9 +103,11 @@ matrix covers:
 - experimental-accept config with the `experimental-verifier-accept` build
   feature
 
-The current coverage proves that this specific invalid Orchard proof path keeps
-rejecting across modes. It is not yet a broader invalid-proof corpus or hardware
-burn-in substitute.
+The same scenario also has CPU-mode coverage for individual txid-preserving
+Orchard auth-data mutations: proof bytes, binding signature, and spend
+authorization signature. The current coverage proves that these local
+mempool-cache bypass shapes keep rejecting. It is not yet a valid-bundle-derived
+invalid-proof corpus or hardware burn-in substitute.
 
 ## Metrics
 
@@ -195,8 +197,8 @@ cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_i
 
 ## Remaining Work
 
-- broaden invalid-proof rejection coverage beyond the current garbage Orchard
-  proof regression
+- build a valid-bundle-derived invalid-proof corpus beyond the current local
+  auth-data mutation regressions
 - add an experimental-accept replay series once hardware burn-in evidence is
   available
 - replace repeated local bundles with historical or synthetic valid offline

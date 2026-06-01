@@ -63,8 +63,8 @@ consensus behavior:
 - backend availability checks
 - CPU fallback on backend errors
 - crosscheck burn-in with zero mismatches
-- broader invalid-proof rejection tests beyond the current garbage Orchard
-  proof regression
+- valid-bundle-derived invalid-proof rejection tests beyond the current local
+  Orchard auth-data mutation regressions
 - continued `halo2_batch_items` fuzzing and expansion into invalid-proof
   corpora
 - offline replay evidence with mismatch and fallback counters
