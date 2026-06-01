@@ -289,6 +289,8 @@ Current verification:
 - `cargo test --workspace`
 - `cargo clippy --workspace --all-targets -- -D warnings`
 - `cargo bench -p zcash-pasta-accel --bench msm --no-run`
+- `cargo check --manifest-path crates/zcash-pasta-accel/fuzz/Cargo.toml --bin msm_inputs`
+- `cargo +nightly fuzz check msm_inputs` in `crates/zcash-pasta-accel`
 - `cargo test` in `repos/pasta-msm`
 - `cargo clippy --all-targets -- -D warnings` in `repos/pasta-msm`
 - Test coverage includes empty MSMs, one-point MSMs, zero scalars, identity
@@ -299,6 +301,9 @@ Current verification:
   round trips, noncanonical field rejection, Pallas/Vesta affine round trips,
   invalid affine-coordinate rejection, identity flags, and Pallas/Vesta
   projective round trips.
+- Fuzz coverage now starts with `crates/zcash-pasta-accel/fuzz`, whose
+  `msm_inputs` target mutates Pallas/Vesta MSM lengths, signs, identity bases,
+  backend selectors, and CPU-resolved Auto dispatch.
 - `pasta-msm` test coverage now includes fallible length-mismatch handling and
   empty Pallas/Vesta MSM identity behavior, plus a safe CUDA runtime
   availability helper.

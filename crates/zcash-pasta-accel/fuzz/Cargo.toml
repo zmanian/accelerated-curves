@@ -1,0 +1,22 @@
+[package]
+name = "zcash-pasta-accel-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[workspace]
+
+[dependencies]
+libfuzzer-sys = "0.4"
+pasta_curves = "0.5.1"
+zcash-pasta-accel = { path = ".." }
+
+[[bin]]
+name = "msm_inputs"
+path = "fuzz_targets/msm_inputs.rs"
+test = false
+doc = false
+bench = false

@@ -4,5 +4,6 @@ members = [
     "crates/zcash-pasta-accel",
 ]
 exclude = [
+    "crates/zcash-pasta-accel/fuzz",
     "repos/pasta-msm",
 ]

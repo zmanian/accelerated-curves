@@ -105,6 +105,8 @@ cargo test -p zcash-pasta-accel --features avx512 avx512_runtime_detection_does_
 cargo clippy -p zcash-pasta-accel --all-targets -- -D warnings
 cargo clippy -p zcash-pasta-accel --features cuda --all-targets -- -D warnings
 cargo bench -p zcash-pasta-accel --bench msm --no-run
+cargo check --manifest-path crates/zcash-pasta-accel/fuzz/Cargo.toml --bin msm_inputs
+(cd crates/zcash-pasta-accel && cargo +nightly fuzz run msm_inputs)
 ```
 
 Ragu:
