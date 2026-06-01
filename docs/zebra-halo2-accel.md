@@ -106,8 +106,14 @@ matrix covers:
 The same scenario also has CPU-mode coverage for individual txid-preserving
 Orchard auth-data mutations: proof bytes, binding signature, and spend
 authorization signature. The current coverage proves that these local
-mempool-cache bypass shapes keep rejecting. It is not yet a valid-bundle-derived
-invalid-proof corpus or hardware burn-in substitute.
+mempool-cache bypass shapes keep rejecting.
+
+The `halo2_invalid_proofs` fuzz target now extracts valid Orchard/Halo2 items
+from Zebra's local block test vectors, verifies the source item once, mutates
+one proof byte, and checks that the mutated proof is rejected by the same
+Orchard verifying key. This adds valid-bundle-derived proof-byte invalid-proof
+coverage, but it is still not a signature/auth-mutation corpus or hardware
+burn-in substitute.
 
 ## Metrics
 
@@ -193,12 +199,17 @@ cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items
 cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items --features halo2-accel-verify
 cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_batch_items -- -runs=1
 cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_items --features halo2-accel-verify -- -D warnings
+cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid_proofs
+cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_invalid_proofs
+cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_invalid_proofs --features halo2-accel-verify
+cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_invalid_proofs -- -runs=1
+cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid_proofs --features halo2-accel-verify -- -D warnings
 ```
 
 ## Remaining Work
 
-- build a valid-bundle-derived invalid-proof corpus beyond the current local
-  auth-data mutation regressions
+- expand the valid-bundle-derived invalid-proof corpus beyond proof-byte
+  mutations into binding-signature and spend-authorization cases
 - add an experimental-accept replay series once hardware burn-in evidence is
   available
 - replace repeated local bundles with historical or synthetic valid offline

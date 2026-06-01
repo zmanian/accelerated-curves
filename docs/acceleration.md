@@ -152,6 +152,9 @@ cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_it
 cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items
 cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items --features halo2-accel-verify
 cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_batch_items -- -runs=1
+cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid_proofs
+cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_invalid_proofs --features halo2-accel-verify
+cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_invalid_proofs -- -runs=1
 ```
 
 ## FFI Boundary
@@ -187,6 +190,8 @@ fields or invalid curve coordinates before any future foreign call.
   covered in CPU mode, and startup logging reports backend availability and
   self-test readiness. The `halo2_batch_items` fuzz target covers batch-item
   selection and acceleration gating invariants over real local test-vector
-  items. Valid-bundle-derived invalid-proof corpora remain open.
+  items. The `halo2_invalid_proofs` fuzz target covers proof-byte mutations
+  derived from valid local Orchard/Halo2 items; signature/auth-derived invalid
+  proof corpora remain open.
 - The offline replay benchmark uses repeated local test-vector bundles, not a
   historical Sandblasting block corpus.

@@ -555,6 +555,9 @@ branch `codex/halo2-accel-verify`:
   - checks that Zebra's batch summary agrees with real item action counts,
     candidate counts, CPU-mode suppression, crosscheck gating, and
     experimental-accept gating invariants
+  - `halo2_invalid_proofs` extracts valid Orchard/Halo2 items from local Zebra
+    block test vectors, verifies source items once, mutates proof bytes, and
+    checks that the mutated proofs reject
 - `repos/zebra/zebra-consensus/src/transaction/tests.rs`
   - broadens the CVE-2026-34377 mempool-cache regression coverage with
     txid-preserving Orchard auth-data mutations for proof bytes, binding
@@ -591,6 +594,11 @@ Zebra verification run so far:
 - `cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_batch_items --features halo2-accel-verify`
 - `cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_batch_items -- -runs=1`
 - `cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_items --features halo2-accel-verify -- -D warnings`
+- `cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid_proofs`
+- `cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_invalid_proofs`
+- `cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_invalid_proofs --features halo2-accel-verify`
+- `cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_invalid_proofs -- -runs=1`
+- `cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid_proofs --features halo2-accel-verify -- -D warnings`
 
 ## Zebra Offline Replay Benchmark
 
@@ -625,7 +633,8 @@ Known caveat:
   auth-data rejection path still rejects in CPU, crosscheck, experimental
   fallback, and experimental-accept builds, plus startup backend self-test
   reporting. It also covers individual txid-preserving Orchard auth-data
-  mutations in CPU mode. It still needs a real invalid-proof corpus built from
-  valid Orchard bundles and hardware burn-in evidence.
+  mutations in CPU mode, and a valid-bundle-derived proof-byte invalid-proof
+  fuzz target. It still needs signature/auth invalid-proof corpus expansion and
+  hardware burn-in evidence.
 - the replay benchmark currently uses repeated local test-vector bundles, not
   historical Sandblasting-era block data or synthetic valid Orchard bundles.
