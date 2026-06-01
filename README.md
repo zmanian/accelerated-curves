@@ -61,6 +61,17 @@ git clone --branch codex/halo2-accel-verify https://github.com/zmanian/zebra.git
 Use local commands as the main development loop. GitHub Actions exists as a
 backup signal, but it should not block ordinary iteration.
 
+The focused local runner wraps the common root and clone checks:
+
+```sh
+scripts/local-check.sh list
+scripts/local-check.sh root-fast
+scripts/local-check.sh ragu
+scripts/local-check.sh halo2
+scripts/local-check.sh zebra
+scripts/local-check.sh zebra-fuzz
+```
+
 Root facade:
 
 ```sh
@@ -101,6 +112,13 @@ cargo clippy -p zebra-consensus --features halo2-accel-verify --all-targets -- -
 cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_batch_items
 cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid_proofs
 cargo clippy --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid_proofs --features halo2-accel-verify -- -D warnings
+```
+
+Ragu acceleration fuzz target:
+
+```sh
+cd repos/ragu
+cargo +nightly fuzz check --fuzz-dir qa/fuzz --features accel-msm fuzz_accelerated_commitments
 ```
 
 ## Runtime Knobs

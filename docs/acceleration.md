@@ -93,14 +93,24 @@ Verifier/prover integrations can also use
 `zcash_pasta_accel::with_dispatch_config` to install a thread-local backend and
 threshold override without changing process-wide environment variables.
 
-## Verification Commands
+## Local Verification Commands
+
+Use local commands as the primary development loop. The helper script wraps the
+focused root and clone checks without dispatching or waiting on GitHub Actions:
+
+```sh
+scripts/local-check.sh list
+scripts/local-check.sh focused
+scripts/local-check.sh fuzz
+```
 
 The root repository also has a default GitHub Actions matrix in
-`.github/workflows/ci.yml`. It runs the non-GPU root checks below, then clones
-the personal Ragu, Halo2, and Zebra integration branches under `repos/` so
-their path dependencies resolve back to `crates/zcash-pasta-accel`. The Zebra
-job also compile-checks and lints the Halo2 fuzz targets that exercise batch
-item summaries and invalid Orchard auth-data mutations.
+`.github/workflows/ci.yml` as a backup signal. It runs the non-GPU root checks
+below, then clones the personal Ragu, Halo2, and Zebra integration branches
+under `repos/` so their path dependencies resolve back to
+`crates/zcash-pasta-accel`. The Zebra job also compile-checks and lints the
+Halo2 fuzz targets that exercise batch item summaries and invalid Orchard
+auth-data mutations.
 
 CUDA checks are manual-only through `workflow_dispatch` with `run_gpu=true`.
 For cloud-host validation, use `.github/workflows/hardware-validation.yml` or
@@ -157,6 +167,12 @@ cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_batch_items -- -ru
 cargo check --manifest-path zebra-consensus/fuzz/Cargo.toml --bin halo2_invalid_proofs
 cargo +nightly fuzz check --fuzz-dir zebra-consensus/fuzz halo2_invalid_proofs --features halo2-accel-verify
 cargo +nightly fuzz run --fuzz-dir zebra-consensus/fuzz halo2_invalid_proofs -- -runs=1
+```
+
+Ragu acceleration fuzz target:
+
+```sh
+cargo +nightly fuzz check --fuzz-dir qa/fuzz --features accel-msm fuzz_accelerated_commitments
 ```
 
 ## FFI Boundary

@@ -327,6 +327,14 @@ Initial documentation now lives under `docs/`:
 
 ## CI Matrix
 
+Local verification is the primary development loop:
+
+- `scripts/local-check.sh`
+  - wraps focused root, Ragu, Halo2, Zebra, and fuzz-target checks
+  - keeps GitHub Actions optional rather than blocking local iteration
+  - includes a Ragu `fuzz_accelerated_commitments` check for the
+    `accel-msm` sparse-commitment fallback path
+
 The root repository now has a CPU-only default workflow:
 
 - `.github/workflows/ci.yml`
