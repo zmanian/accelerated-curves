@@ -131,6 +131,7 @@ cargo test -p ragu_arithmetic --features accel-fft accel_fft_stats -- --test-thr
 cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_below_threshold_workload -- --test-threads=1
 cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_forced_backend_fallback -- --test-threads=1
 cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_candidate_size_buckets -- --test-threads=1
+cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_schedule_plan_uses_ragu_config_thresholds -- --test-threads=1
 cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1
 cargo test -p ragu_circuits --features accel-msm commit_matches_dense -- --test-threads=1
 cargo test -p ragu_pcd --features accel-msm with_accel_config_falls_back -- --test-threads=1
@@ -159,6 +160,12 @@ after the benchmark group. This gives a lightweight workload census of
 all observed MSMs, observed point totals, observed size buckets, candidate
 MSMs, facade results, fallbacks, total candidate points, and candidate MSM size
 buckets for the run.
+
+The same bench now also prints an `accel-msm schedule` summary derived from the
+shared `zcash-pasta-accel` planner and Ragu's `AccelMsmConfig`. That summary
+reports the benchmark size set split across CPU, medium-batch, and immediate
+large-MSM dispatch decisions, giving local runs a scheduler-readiness signal
+before CUDA streams, memory pools, or persistent-base handles exist.
 
 When built with `accel-fft`, the FFT Criterion bench prints `AccelFftStats`
 after each benchmark group. This gives a lightweight workload census of forward

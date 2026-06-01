@@ -392,6 +392,8 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
   - prints `AccelMsmStats` when built with `accel-msm`, giving benchmark runs
     observed MSM, candidate, facade-result, fallback, total point, and MSM
     size bucket counts
+  - also prints a shared-planner schedule summary for the benchmark size set,
+    split into CPU, medium-batch, and immediate large-MSM decisions
 - `repos/ragu/crates/ragu_arithmetic/benches/criterion/fft.rs`
   - prints `AccelFftStats` when built with `accel-fft`, giving benchmark runs
     forward/inverse FFT counts, total domain size, and nonzero
@@ -418,6 +420,9 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
     need explicit backend selection without depending directly on the facade
   - adds explicit `AccelMsmConfig` and `mul_with_accel_config` for prover-side
     callers and tests that should not mutate process environment
+  - adds `plan_accel_msm_schedule` and
+    `format_accel_msm_schedule_summary` so Ragu profiling can apply the shared
+    `zcash-pasta-accel` batch planner to observed MSM size lists
   - records `AccelMsmStats` counters:
     - `observed_msms`
     - `total_observed_points`
