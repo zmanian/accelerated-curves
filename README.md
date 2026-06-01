@@ -67,6 +67,7 @@ The focused local runner wraps the common root and clone checks:
 scripts/local-check.sh list
 scripts/local-check.sh root-fast
 scripts/local-check.sh ragu
+scripts/local-check.sh ragu-fft
 scripts/local-check.sh halo2
 scripts/local-check.sh zebra
 scripts/local-check.sh zebra-fuzz
@@ -90,6 +91,8 @@ Ragu:
 cd repos/ragu
 cargo test -p ragu_arithmetic --features accel-msm -- --test-threads=1
 cargo test -p ragu_pcd --features accel-msm seed_with_ -- --test-threads=1
+cargo test -p ragu_arithmetic --features accel-fft accel_fft_stats -- --test-threads=1
+cargo bench -p ragu_arithmetic --features accel-fft --bench fft_criterion --no-run
 cargo bench -p ragu_pcd --features accel-msm --bench pcd_accel_criterion --no-run
 ```
 

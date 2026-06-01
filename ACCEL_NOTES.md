@@ -373,12 +373,17 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
 
 - `repos/ragu/crates/ragu_arithmetic/Cargo.toml`
   - adds `accel-msm = ["std", "dep:zcash-pasta-accel"]`
-  - adds `accel-fft = ["std", "dep:zcash-pasta-accel"]` as a future hook
+  - adds `accel-fft = ["std", "dep:zcash-pasta-accel"]` for FFT workload
+    census and future acceleration hooks
   - adds optional local path dependency on `zcash-pasta-accel`
 - `repos/ragu/crates/ragu_arithmetic/benches/criterion/msm.rs`
   - prints `AccelMsmStats` when built with `accel-msm`, giving benchmark runs
     candidate, facade-result, fallback, total candidate point, and MSM size
     bucket counts
+- `repos/ragu/crates/ragu_arithmetic/benches/criterion/fft.rs`
+  - prints `AccelFftStats` when built with `accel-fft`, giving benchmark runs
+    forward/inverse FFT counts, total domain size, and nonzero
+    `log2(domain_size)` bucket counts
 - `repos/ragu/crates/ragu_pcd/benches/criterion/pcd_accel.rs`
   - adds a Criterion benchmark target for end-to-end PCD operations
   - covers `seed`, `fuse`, `rerandomize`, and `verify`
@@ -407,6 +412,13 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
     - `candidate_size_buckets` for `0..=255`, `256..=1023`,
       `1024..=4095`, `4096..=16383`, `16384..=65535`, and `65536+`
       candidate MSMs
+- `repos/ragu/crates/ragu_arithmetic/src/domain.rs`
+  - keeps `Domain::ring_fft` and `Domain::ring_ifft` on the existing CPU FFT
+    implementation
+  - under `accel-fft`, records `AccelFftStats` counters for successful forward
+    and inverse transforms, total domain size, and exact `log2(domain_size)`
+    buckets
+  - exposes `format_accel_fft_stats` for benchmark output
 - `repos/ragu/crates/ragu_circuits/Cargo.toml`
   - adds `accel-msm = ["std", "ragu_arithmetic/accel-msm"]`
 - `repos/ragu/crates/ragu_circuits/src/polynomials/sparse/mod.rs`
@@ -445,6 +457,7 @@ Ragu verification run so far:
 
 - `cargo test -p ragu_arithmetic`
 - `cargo test -p ragu_arithmetic --features accel-msm`
+- `cargo test -p ragu_arithmetic --features accel-fft accel_fft_stats -- --test-threads=1`
 - `cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_forced_backend_fallback -- --test-threads=1`
 - `cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_candidate_size_buckets -- --test-threads=1`
 - `cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1`
@@ -456,9 +469,10 @@ Ragu verification run so far:
 - `cargo check -p ragu_arithmetic --no-default-features --features alloc`
 - `cargo check -p ragu_pcd --no-default-features --features alloc`
 - `cargo clippy -p ragu_arithmetic --features accel-msm --all-targets -- -D warnings`
+- `cargo clippy -p ragu_arithmetic --features accel-fft --all-targets -- -D warnings`
 - `cargo clippy -p ragu_pcd --features accel-msm --all-targets -- -D warnings`
 - `cargo bench -p ragu_arithmetic --features accel-msm --bench msm_criterion --no-run`
-- `cargo bench -p ragu_arithmetic --features accel-msm --bench fft_criterion --no-run`
+- `cargo bench -p ragu_arithmetic --features accel-fft --bench fft_criterion --no-run`
 - `cargo bench -p ragu_pcd --bench pcd_accel_criterion --no-run`
 - `cargo bench -p ragu_pcd --features accel-msm --bench pcd_accel_criterion --no-run`
 - `cargo clippy -p ragu_pcd --features accel-msm --all-targets -- -D warnings`

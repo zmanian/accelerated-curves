@@ -12,6 +12,7 @@ Targets:
   root-fast       Fast root facade checks.
   root            Full root workspace checks.
   ragu            Focused Ragu accel-msm tests.
+  ragu-fft        Focused Ragu accel-fft workload census checks.
   ragu-fuzz       Check the optional Ragu accelerated-commitments fuzz target.
   halo2           Focused Halo2 pasta-accel checks.
   zebra           Focused Zebra halo2-accel-verify checks.
@@ -58,6 +59,13 @@ ragu_checks() {
   need_dir "$dir"
   run "$dir" cargo test -p ragu_arithmetic --features accel-msm -- --test-threads=1
   run "$dir" cargo test -p ragu_pcd --features accel-msm seed_with_ -- --test-threads=1
+}
+
+ragu_fft_checks() {
+  local dir="$ROOT/repos/ragu"
+  need_dir "$dir"
+  run "$dir" cargo test -p ragu_arithmetic --features accel-fft accel_fft_stats -- --test-threads=1
+  run "$dir" cargo bench -p ragu_arithmetic --features accel-fft --bench fft_criterion --no-run
 }
 
 ragu_fuzz_checks() {
@@ -117,6 +125,9 @@ case "$target" in
     ;;
   ragu)
     ragu_checks
+    ;;
+  ragu-fft)
+    ragu_fft_checks
     ;;
   ragu-fuzz)
     ragu_fuzz_checks

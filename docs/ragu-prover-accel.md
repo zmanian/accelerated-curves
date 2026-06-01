@@ -11,8 +11,8 @@ In `ragu_arithmetic`:
 - `accel-msm`
 - `accel-fft`
 
-`accel-msm` enables the current dispatcher. `accel-fft` is reserved for future
-FFT/NTT work and does not yet change FFT behavior.
+`accel-msm` enables the current dispatcher. `accel-fft` enables FFT workload
+census counters and benchmark reporting, but does not yet change FFT behavior.
 
 ## MSM Hook
 
@@ -58,6 +58,20 @@ Default threshold:
 ```sh
 ZCASH_ACCEL_MIN_MSM=4096
 ```
+
+## FFT Workload Census
+
+In `ragu_arithmetic`, enabling `accel-fft` exposes:
+
+- `AccelFftStats`
+- `accel_fft_stats`
+- `reset_accel_fft_stats`
+- `format_accel_fft_stats`
+
+`Domain::ring_fft` and `Domain::ring_ifft` record successful transform counts
+and exact `log2(domain_size)` buckets. This is profiling support for future
+FFT/NTT acceleration decisions; it does not offload FFTs or change their
+results.
 
 ## Commitment Hook
 
@@ -107,6 +121,7 @@ Focused commands:
 ```sh
 cargo test -p ragu_arithmetic
 cargo test -p ragu_arithmetic --features accel-msm
+cargo test -p ragu_arithmetic --features accel-fft accel_fft_stats -- --test-threads=1
 cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_forced_backend_fallback -- --test-threads=1
 cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_candidate_size_buckets -- --test-threads=1
 cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1
@@ -117,9 +132,10 @@ cargo test -p ragu_pcd --features accel-msm with_accel_config_falls_back -- --ig
 cargo check -p ragu_arithmetic --no-default-features --features alloc
 cargo check -p ragu_pcd --no-default-features --features alloc
 cargo clippy -p ragu_arithmetic --features accel-msm --all-targets -- -D warnings
+cargo clippy -p ragu_arithmetic --features accel-fft --all-targets -- -D warnings
 cargo clippy -p ragu_pcd --features accel-msm --all-targets -- -D warnings
 cargo bench -p ragu_arithmetic --features accel-msm --bench msm_criterion --no-run
-cargo bench -p ragu_arithmetic --features accel-msm --bench fft_criterion --no-run
+cargo bench -p ragu_arithmetic --features accel-fft --bench fft_criterion --no-run
 ```
 
 ## Benchmark Hooks
@@ -134,6 +150,11 @@ When built with `accel-msm`, the MSM Criterion bench prints `AccelMsmStats`
 after the benchmark group. This gives a lightweight workload census of
 candidate MSMs, facade results, fallbacks, total candidate points, and
 candidate MSM size buckets for the run.
+
+When built with `accel-fft`, the FFT Criterion bench prints `AccelFftStats`
+after each benchmark group. This gives a lightweight workload census of forward
+and inverse FFT counts, total domain size, and nonzero `log2(domain_size)`
+buckets.
 
 The PCD Criterion benchmark covers:
 
