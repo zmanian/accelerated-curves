@@ -458,8 +458,13 @@ branch `codex/halo2-accel-verify`:
     - `mode = "experimental-accept"`
   - suppresses acceleration candidates when `mode = "cpu"` even if
     `enabled = true`
+  - exposes startup status showing whether the accel feature is compiled,
+    whether the requested backend is available, whether backend self-tests
+    passed, and whether experimental accept is actually ready
 - `repos/zebra/zebra-consensus/src/router.rs`
   - passes `consensus.halo2_accel` into the transaction verifier at startup
+  - reports operator-facing Halo2 acceleration startup status before verifier
+    services are constructed
 - `repos/zebra/zebra-consensus/src/transaction.rs`
   - stores the Halo2 accel config on the transaction verifier
   - records Orchard bundle candidate metrics before queuing into the existing
@@ -501,6 +506,7 @@ Zebra verification run so far:
 
 - `cargo test -p zebra-consensus config::tests::halo2_accel -- --test-threads=1`
 - `cargo test -p zebra-consensus --features halo2-accel-verify config::tests::halo2_accel -- --test-threads=1`
+- `cargo test -p zebra-consensus --features halo2-accel-verify halo2_accel_startup_status_reports_failed_avx512_stub_self_test -- --test-threads=1`
 - `cargo test -p zebra-consensus halo2_batch_accel_context_tracks_candidate_actions -- --test-threads=1`
 - `cargo test -p zebra-consensus --features halo2-accel-verify halo2_batch_accel_context_tracks_candidate_actions -- --test-threads=1`
 - `cargo test -p zebra-consensus --features halo2-accel-verify halo2_batch_accel_context -- --test-threads=1`
@@ -548,8 +554,8 @@ Known caveat:
   `zcash-pasta-accel` crates, and crosscheck mode is CPU-accepting. Production
   experimental accept now has regression coverage showing the existing garbage
   Orchard proof rejection path still rejects in CPU, crosscheck, experimental
-  fallback, and experimental-accept builds. It still needs startup backend
-  self-test operator reporting, a broader invalid-proof corpus, and hardware
-  burn-in evidence.
+  fallback, and experimental-accept builds, plus startup backend self-test
+  reporting. It still needs a broader invalid-proof corpus and hardware burn-in
+  evidence.
 - the replay benchmark currently uses repeated local test-vector bundles, not
   historical Sandblasting-era block data or synthetic valid Orchard bundles.

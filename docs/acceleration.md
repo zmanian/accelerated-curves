@@ -167,7 +167,7 @@ fields or invalid curve coordinates before any future foreign call.
 - Ragu acceleration is MSM-only.
 - Zebra crosscheck mode is CPU-protected, and experimental accept is gated on
   facade backend self-tests. The current garbage Orchard proof regression is
-  covered across modes; broader invalid-proof corpora and operator-facing
-  startup telemetry remain open.
+  covered across modes, and startup logging reports backend availability and
+  self-test readiness. Broader invalid-proof corpora remain open.
 - The offline replay benchmark uses repeated local test-vector bundles, not a
   historical Sandblasting block corpus.

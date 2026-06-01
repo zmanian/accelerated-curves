@@ -12,6 +12,12 @@ result. Experimental accept mode remains gated behind an explicit build feature
 and a deterministic non-CPU backend self-test; burn-in evidence is still needed
 before use.
 
+At router startup, Zebra reports the configured acceleration status for
+operators: build support, backend availability, backend self-test result,
+thresholds, and whether experimental accept is actually ready. If experimental
+accept is configured but not ready, Zebra reports that it is keeping
+CPU-protected crosscheck behavior.
+
 ## Feature Flag
 
 Build Zebra with:
@@ -159,8 +165,6 @@ It does not generate or send network load.
 
 ## Remaining Work
 
-- promote the backend self-test gate into explicit startup telemetry/operator
-  reporting
 - broaden invalid-proof rejection coverage beyond the current garbage Orchard
   proof regression
 - add an experimental-accept replay series once hardware burn-in evidence is

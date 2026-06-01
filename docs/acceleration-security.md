@@ -36,6 +36,9 @@ replay evidence.
   AVX-512 MSM implementation exists.
 - `backend_self_test` compares deterministic Pallas and Vesta MSMs against the
   CPU path; `accelerated_backend_self_test` only passes for non-CPU backends.
+- Zebra reports startup status for configured Halo2 acceleration, including
+  build support, backend availability, backend self-test result, thresholds,
+  and experimental-accept readiness.
 - Ragu falls back to its existing CPU `mul` implementation when the accelerator
   is unavailable, unsupported, or errors.
 - Halo2 falls back to `cpu_best_multiexp` when `zcash-pasta-accel` cannot
@@ -55,7 +58,6 @@ consensus behavior:
 - explicit `experimental-verifier-accept` build feature
 - explicit runtime config
 - backend availability checks
-- startup/operator reporting for backend self-test status
 - CPU fallback on backend errors
 - crosscheck burn-in with zero mismatches
 - broader invalid-proof rejection tests beyond the current garbage Orchard
