@@ -377,7 +377,8 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
   - adds optional local path dependency on `zcash-pasta-accel`
 - `repos/ragu/crates/ragu_arithmetic/benches/criterion/msm.rs`
   - prints `AccelMsmStats` when built with `accel-msm`, giving benchmark runs
-    candidate, facade-result, fallback, and total candidate point counts
+    candidate, facade-result, fallback, total candidate point, and MSM size
+    bucket counts
 - `repos/ragu/crates/ragu_pcd/benches/criterion/pcd_accel.rs`
   - adds a Criterion benchmark target for end-to-end PCD operations
   - covers `seed`, `fuse`, `rerandomize`, and `verify`
@@ -403,6 +404,9 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
     - `facade_results`
     - `fallbacks`
     - `total_candidate_points`
+    - `candidate_size_buckets` for `0..=255`, `256..=1023`,
+      `1024..=4095`, `4096..=16383`, `16384..=65535`, and `65536+`
+      candidate MSMs
 - `repos/ragu/crates/ragu_circuits/Cargo.toml`
   - adds `accel-msm = ["std", "ragu_arithmetic/accel-msm"]`
 - `repos/ragu/crates/ragu_circuits/src/polynomials/sparse/mod.rs`
@@ -442,6 +446,7 @@ Ragu verification run so far:
 - `cargo test -p ragu_arithmetic`
 - `cargo test -p ragu_arithmetic --features accel-msm`
 - `cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_forced_backend_fallback -- --test-threads=1`
+- `cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_candidate_size_buckets -- --test-threads=1`
 - `cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1`
 - `cargo test -p ragu_circuits --features accel-msm commit_matches_dense -- --test-threads=1`
 - `cargo test -p ragu_pcd --features accel-msm with_accel_config_falls_back -- --test-threads=1`

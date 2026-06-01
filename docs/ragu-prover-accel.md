@@ -45,6 +45,13 @@ The stats counters track:
 - facade-result count
 - fallback count
 - total candidate points
+- candidate MSM size buckets:
+  - `0..=255`
+  - `256..=1023`
+  - `1024..=4095`
+  - `4096..=16383`
+  - `16384..=65535`
+  - `65536+`
 
 Default threshold:
 
@@ -101,6 +108,7 @@ Focused commands:
 cargo test -p ragu_arithmetic
 cargo test -p ragu_arithmetic --features accel-msm
 cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_forced_backend_fallback -- --test-threads=1
+cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_candidate_size_buckets -- --test-threads=1
 cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1
 cargo test -p ragu_circuits --features accel-msm commit_matches_dense -- --test-threads=1
 cargo test -p ragu_pcd --features accel-msm with_accel_config_falls_back -- --test-threads=1
@@ -123,8 +131,9 @@ Current existing benchmark targets:
 - `crates/ragu_pcd/benches/criterion/pcd_accel.rs`
 
 When built with `accel-msm`, the MSM Criterion bench prints `AccelMsmStats`
-after the benchmark group. This gives a lightweight view of candidate MSMs,
-facade results, fallbacks, and total candidate points for the run.
+after the benchmark group. This gives a lightweight workload census of
+candidate MSMs, facade results, fallbacks, total candidate points, and
+candidate MSM size buckets for the run.
 
 The PCD Criterion benchmark covers:
 
@@ -143,6 +152,7 @@ Target measurements still needed for production benchmark reports:
 - backend used
 - MSM count
 - total MSM points
+- MSM size bucket counts
 - FFT count
 - total FFT domain size
 - fallback count
