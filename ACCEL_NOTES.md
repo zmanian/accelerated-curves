@@ -378,8 +378,8 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
   - adds optional local path dependency on `zcash-pasta-accel`
 - `repos/ragu/crates/ragu_arithmetic/benches/criterion/msm.rs`
   - prints `AccelMsmStats` when built with `accel-msm`, giving benchmark runs
-    candidate, facade-result, fallback, total candidate point, and MSM size
-    bucket counts
+    observed MSM, candidate, facade-result, fallback, total point, and MSM
+    size bucket counts
 - `repos/ragu/crates/ragu_arithmetic/benches/criterion/fft.rs`
   - prints `AccelFftStats` when built with `accel-fft`, giving benchmark runs
     forward/inverse FFT counts, total domain size, and nonzero
@@ -407,6 +407,10 @@ Ragu now has a feature-gated MSM dispatcher on branch `codex/accel-msm`:
   - adds explicit `AccelMsmConfig` and `mul_with_accel_config` for prover-side
     callers and tests that should not mutate process environment
   - records `AccelMsmStats` counters:
+    - `observed_msms`
+    - `total_observed_points`
+    - `observed_size_buckets` for all profiled MSMs, including
+      below-threshold calls
     - `candidates`
     - `facade_results`
     - `fallbacks`
@@ -462,6 +466,7 @@ Ragu verification run so far:
 - `cargo test -p ragu_arithmetic`
 - `cargo test -p ragu_arithmetic --features accel-msm`
 - `cargo test -p ragu_arithmetic --features accel-fft accel_fft_stats -- --test-threads=1`
+- `cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_below_threshold_workload -- --test-threads=1`
 - `cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_forced_backend_fallback -- --test-threads=1`
 - `cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_candidate_size_buckets -- --test-threads=1`
 - `cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1`

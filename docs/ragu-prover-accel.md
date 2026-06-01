@@ -41,6 +41,9 @@ also exposes:
 
 The stats counters track:
 
+- observed MSM count
+- total observed MSM points
+- observed MSM size buckets
 - candidate MSM count
 - facade-result count
 - fallback count
@@ -125,6 +128,7 @@ Focused commands:
 cargo test -p ragu_arithmetic
 cargo test -p ragu_arithmetic --features accel-msm
 cargo test -p ragu_arithmetic --features accel-fft accel_fft_stats -- --test-threads=1
+cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_below_threshold_workload -- --test-threads=1
 cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_forced_backend_fallback -- --test-threads=1
 cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_candidate_size_buckets -- --test-threads=1
 cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1
@@ -152,8 +156,9 @@ Current existing benchmark targets:
 
 When built with `accel-msm`, the MSM Criterion bench prints `AccelMsmStats`
 after the benchmark group. This gives a lightweight workload census of
-candidate MSMs, facade results, fallbacks, total candidate points, and
-candidate MSM size buckets for the run.
+all observed MSMs, observed point totals, observed size buckets, candidate
+MSMs, facade results, fallbacks, total candidate points, and candidate MSM size
+buckets for the run.
 
 When built with `accel-fft`, the FFT Criterion bench prints `AccelFftStats`
 after each benchmark group. This gives a lightweight workload census of forward
