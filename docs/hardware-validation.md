@@ -50,7 +50,7 @@ cargo bench -p zcash-pasta-accel --features cuda --bench msm --no-run
 cd repos/ragu
 ZCASH_ACCEL=cuda ZCASH_ACCEL_MIN_MSM=1 \
   cargo test -p ragu_pcd --features accel-msm \
-  seed_with_accel_config_falls_back_and_verifies -- --test-threads=1
+  seed_with_cuda_accel_config_dispatches_or_falls_back_and_verifies -- --test-threads=1
 cd ../..
 
 cd repos/halo2

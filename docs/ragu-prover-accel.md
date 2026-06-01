@@ -89,8 +89,9 @@ path regressions for `fuse_with_accel_config` and
 `rerandomize_with_accel_config`. Those two tests are marked ignored because
 full PCD proof construction is too slow for the normal focused loop on a
 laptop; run them explicitly when changing prover acceleration plumbing. Root CI
-does run the focused `seed_with_accel_config_falls_back_and_verifies` proof-path
-smoke test against the Ragu integration branch.
+does run the focused `seed_with_` proof-path smoke tests against the Ragu
+integration branch, covering both a stable unavailable-backend fallback and a
+CUDA-requested dispatch-or-fallback path.
 
 ## Verification
 
@@ -103,6 +104,7 @@ cargo test -p ragu_arithmetic --features accel-msm test_accel_msm_records_forced
 cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1
 cargo test -p ragu_circuits --features accel-msm commit_matches_dense -- --test-threads=1
 cargo test -p ragu_pcd --features accel-msm with_accel_config_falls_back -- --test-threads=1
+cargo test -p ragu_pcd --features accel-msm seed_with_ -- --test-threads=1
 cargo test -p ragu_pcd --features accel-msm with_accel_config_falls_back -- --ignored --test-threads=1
 cargo check -p ragu_arithmetic --no-default-features --features alloc
 cargo check -p ragu_pcd --no-default-features --features alloc

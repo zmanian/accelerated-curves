@@ -122,7 +122,7 @@ Ragu:
 ```sh
 cargo test -p ragu_arithmetic
 cargo test -p ragu_arithmetic --features accel-msm
-cargo test -p ragu_pcd --features accel-msm seed_with_accel_config_falls_back_and_verifies -- --test-threads=1
+cargo test -p ragu_pcd --features accel-msm seed_with_ -- --test-threads=1
 cargo check -p ragu_arithmetic --no-default-features --features alloc
 cargo bench -p ragu_arithmetic --features accel-msm --bench msm_criterion --no-run
 cargo bench -p ragu_pcd --features accel-msm --bench pcd_accel_criterion --no-run
