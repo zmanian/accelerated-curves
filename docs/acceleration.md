@@ -101,6 +101,7 @@ the personal Ragu, Halo2, and Zebra integration branches under `repos/` so
 their path dependencies resolve back to `crates/zcash-pasta-accel`.
 
 CUDA checks are manual-only through `workflow_dispatch` with `run_gpu=true`.
+For cloud-host validation, use `docs/hardware-validation.md`.
 
 Acceleration facade:
 

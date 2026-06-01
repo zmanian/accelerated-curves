@@ -321,6 +321,9 @@ Initial documentation now lives under `docs/`:
   - Zebra feature/config/metric/replay benchmark status
 - `docs/ragu-prover-accel.md`
   - Ragu MSM hook, verification commands, benchmark gaps, and remaining work
+- `docs/hardware-validation.md`
+  - cloud CUDA and AVX-512 validation commands, host evidence to capture, and
+    expected fallback or stub behavior
 
 ## CI Matrix
 
