@@ -88,7 +88,9 @@ The default `accel-msm` test pass now compiles broader explicit-config proof
 path regressions for `fuse_with_accel_config` and
 `rerandomize_with_accel_config`. Those two tests are marked ignored because
 full PCD proof construction is too slow for the normal focused loop on a
-laptop; run them explicitly when changing prover acceleration plumbing.
+laptop; run them explicitly when changing prover acceleration plumbing. Root CI
+does run the focused `seed_with_accel_config_falls_back_and_verifies` proof-path
+smoke test against the Ragu integration branch.
 
 ## Verification
 

@@ -337,6 +337,8 @@ The root repository now has a CPU-only default workflow:
   - runs `cargo clippy --workspace --all-targets -- -D warnings`
   - clones `zmanian/ragu` branch `codex/accel-msm` and runs
     `cargo test -p ragu_arithmetic --features accel-msm`
+  - also runs the focused Ragu PCD acceleration fallback smoke test:
+    `cargo test -p ragu_pcd --features accel-msm seed_with_accel_config_falls_back_and_verifies -- --test-threads=1`
   - clones `zmanian/halo2` branch `codex/pasta-accel-dispatch` and runs
     `cargo test -p halo2_proofs --features pasta-accel`
   - clones `zmanian/halo2` plus `zmanian/zebra` branch
@@ -424,6 +426,7 @@ Ragu verification run so far:
 - `cargo test -p ragu_circuits --features accel-msm commit_with_accel_config_records_forced_backend_fallback -- --test-threads=1`
 - `cargo test -p ragu_circuits --features accel-msm commit_matches_dense -- --test-threads=1`
 - `cargo test -p ragu_pcd --features accel-msm with_accel_config_falls_back -- --test-threads=1`
+- `cargo test -p ragu_pcd --features accel-msm seed_with_accel_config_falls_back_and_verifies -- --test-threads=1`
 - `cargo check -p ragu_arithmetic --no-default-features --features alloc`
 - `cargo check -p ragu_pcd --no-default-features --features alloc`
 - `cargo clippy -p ragu_arithmetic --features accel-msm --all-targets -- -D warnings`
